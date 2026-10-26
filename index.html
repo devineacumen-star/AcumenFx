@@ -96,6 +96,19 @@
     .section-note { margin: 0; color: var(--muted); font-size: 12px; }
     .catalog-section { padding-top: 10px; scroll-margin-top: 82px; }
     .hero[hidden] { display: none; }
+    .watch-page { width: min(100%, 1280px); margin: 0 auto; padding: 24px clamp(22px, 7vw, 104px) 70px; }
+    .watch-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .watch-toolbar p { margin: 0; color: var(--muted); font-size: 11px; }
+    .watch-layout { display: grid; grid-template-columns: minmax(160px, 240px) 1fr; align-items: start; gap: clamp(20px, 4vw, 42px); margin-top: 22px; }
+    .watch-poster-frame { position: relative; width: 100%; aspect-ratio: 2 / 3; overflow: hidden; border: 1px solid #ffffff20; border-radius: 5px; background: var(--surface); }
+    .watch-poster { width: 100%; height: 100%; display: block; object-fit: cover; }
+    .watch-poster-fallback { position: absolute; inset: 0; display: grid; place-items: center; color: #a5b2a7; background: linear-gradient(135deg, #293a31, #18221d); font: 32px Georgia, "Times New Roman", serif; }
+    .watch-title { margin: 0 0 13px; font: 400 clamp(32px, 5vw, 56px)/1.05 Georgia, "Times New Roman", serif; }
+    .watch-overview { max-width: 680px; margin: 18px 0 20px; color: #d7ddd6; font-size: 14px; line-height: 1.7; }
+    .watch-player { min-height: 220px; aspect-ratio: 16 / 9; display: grid; place-items: center; margin-top: 30px; border: 1px solid #ffffff1c; border-radius: 7px; padding: 24px; background: #080d0a; text-align: center; }
+    .watch-player p { max-width: 460px; margin: 0; color: var(--muted); font-size: 13px; line-height: 1.7; }
+    .watch-player strong { display: block; margin-bottom: 8px; color: var(--ink); font: 400 21px Georgia, "Times New Roman", serif; }
+    .watch-player .play-mark { width: 42px; height: 42px; display: grid; place-items: center; margin: 0 auto 14px; border: 1px solid #ffffff40; border-radius: 50%; color: var(--accent-light); }
     .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
     .movie-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid #ffffff12; border-radius: 6px; background: var(--surface); transition: border-color .18s ease, transform .18s ease; }
     .movie-card:hover { transform: translateY(-3px); border-color: #ffffff40; }
@@ -112,13 +125,12 @@
     .card-title { margin: 0 0 5px; font-size: 15px; font-weight: 700; }
     .card-subtitle { margin: 0; color: var(--muted); font-size: 11px; }
     .rating { flex: 0 0 auto; color: #f3c87b; font-size: 11px; }
-    .card-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
-    .card-actions { position: relative; z-index: 2; }
+    .card-actions { position: relative; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
     .text-button { border: 0; padding: 4px 0; color: var(--accent-light); background: none; font-size: 12px; font-weight: 700; cursor: pointer; }
     .text-button:hover { color: #ffd0b8; }
-    .save-button { width: 32px; height: 32px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: #d7ddd6; background: transparent; cursor: pointer; }
+    .save-button { min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border: 1px solid var(--line); border-radius: 4px; padding: 0 9px; color: #d7ddd6; background: transparent; font-size: 11px; white-space: nowrap; cursor: pointer; }
     .save-button:hover, .save-button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-light); background: #ed765f19; }
-    .save-button svg { width: 15px; height: 15px; }
+    .save-button svg { width: 15px; height: 15px; flex: 0 0 15px; }
     .empty-state { grid-column: 1 / -1; border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
     .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 16px; }
     .status-message { min-height: 20px; margin: 0 0 14px; color: var(--muted); font-size: 12px; }
@@ -172,6 +184,8 @@
       .catalog { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
       footer { padding-right: 24px; padding-left: 24px; }
       .detail-content { grid-template-columns: minmax(105px, 180px) 1fr; gap: 16px; }
+      .watch-page { padding-right: 24px; padding-left: 24px; }
+      .watch-layout { grid-template-columns: minmax(115px, 190px) 1fr; gap: 18px; }
     }
     @media (max-width: 520px) {
       .site-header { flex-wrap: wrap; gap: 0 18px; padding-top: 11px; padding-bottom: 11px; }
@@ -201,6 +215,9 @@
       .tmdb-credit { grid-template-columns: 1fr; gap: 12px; }
       .detail-content { grid-template-columns: 1fr; }
       .details-poster { width: min(45vw, 170px); }
+      .watch-page { padding-right: 20px; padding-left: 20px; }
+      .watch-layout { grid-template-columns: minmax(90px, 34%) 1fr; gap: 14px; }
+      .watch-player { min-height: 180px; margin-top: 22px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -212,7 +229,7 @@
     <a class="wordmark" href="#home" aria-label="AcumenFx home"><span class="mark" aria-hidden="true">A</span>ACUMENFX</a>
     <nav class="main-nav" aria-label="Main navigation">
       <button class="nav-button" type="button" data-view="popular" aria-current="page">Popular</button>
-      <button class="nav-button" type="button" data-view="list">My List</button>
+      <button class="nav-button" type="button" data-view="list">Watch Later</button>
     </nav>
     <div class="header-tools">
       <label class="search-wrap">
@@ -233,6 +250,33 @@
         <p id="hero-copy" class="hero-copy">Explore popular movies, search titles, and view details from one place.</p>
         <div class="hero-actions">
           <button id="hero-details" class="button button-primary" type="button" data-details="" hidden>View details</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="watch-page" class="watch-page" aria-labelledby="watch-title" hidden>
+      <div class="watch-toolbar">
+        <button id="watch-back" class="button button-secondary" type="button">Back to movies</button>
+        <p>AcumenFx movie page</p>
+      </div>
+      <div class="watch-layout">
+        <div class="watch-poster-frame">
+          <img id="watch-poster" class="watch-poster" alt="" hidden>
+          <div id="watch-poster-fallback" class="watch-poster-fallback">AF</div>
+        </div>
+        <div>
+          <p class="eyebrow">Movie details</p>
+          <h1 id="watch-title" class="watch-title">Loading movie…</h1>
+          <div id="watch-meta" class="details-facts"></div>
+          <p id="watch-overview" class="watch-overview"></p>
+          <button id="watch-later-toggle" class="button button-secondary watch-later-button" type="button" data-save-movie="" aria-pressed="false">Add to Watch Later</button>
+        </div>
+      </div>
+      <div class="watch-player" role="region" aria-label="Movie player">
+        <div>
+          <div class="play-mark" aria-hidden="true"><svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><path d="M8 5.8c0-.8.9-1.3 1.6-.9l9.2 5.2a1 1 0 0 1 0 1.8l-9.2 5.2c-.7.4-1.6-.1-1.6-.9V5.8Z"/></svg></div>
+          <strong id="watch-player-title">Playback is not connected yet</strong>
+          <p id="watch-player-status">AcumenFx can show movie information, but it does not have a licensed video source for this title. A player can be added when authorized playback is available.</p>
         </div>
       </div>
     </section>
@@ -277,6 +321,16 @@
     const watchlistStorage = "acumenfx-tmdb-watchlist";
     const movieGrid = document.querySelector("#movie-grid");
     const hero = document.querySelector(".hero");
+    const catalogSection = document.querySelector(".catalog-section");
+    const watchPage = document.querySelector("#watch-page");
+    const watchPoster = document.querySelector("#watch-poster");
+    const watchPosterFallback = document.querySelector("#watch-poster-fallback");
+    const watchTitle = document.querySelector("#watch-title");
+    const watchMeta = document.querySelector("#watch-meta");
+    const watchOverview = document.querySelector("#watch-overview");
+    const watchPlayerTitle = document.querySelector("#watch-player-title");
+    const watchPlayerStatus = document.querySelector("#watch-player-status");
+    const watchLaterToggle = document.querySelector("#watch-later-toggle");
     const heroArt = document.querySelector("#hero-art");
     const heroTitle = document.querySelector("#hero-title");
     const heroCopy = document.querySelector("#hero-copy");
@@ -296,6 +350,8 @@
     let currentPage = 1;
     let totalPages = 1;
     let requestSequence = 0;
+    let watchReturnView = "popular";
+    let activeWatchMovie = null;
     let searchTimer;
     let savedMovies = readSavedMovies();
 
@@ -347,10 +403,19 @@
     }
 
     function updateNavigation() {
+      const selectedView = activeView === "watch" ? watchReturnView : activeView;
       viewButtons.forEach(button => {
-        if (button.dataset.view === activeView) button.setAttribute("aria-current", "page");
+        if (button.dataset.view === selectedView) button.setAttribute("aria-current", "page");
         else button.removeAttribute("aria-current");
       });
+    }
+
+    function updateWatchLaterButton(movie) {
+      if (!movie) return;
+      const saved = savedMovies.has(Number(movie.id));
+      watchLaterToggle.dataset.saveMovie = String(movie.id);
+      watchLaterToggle.setAttribute("aria-pressed", String(saved));
+      watchLaterToggle.textContent = saved ? "Added to Watch Later" : "Add to Watch Later";
     }
 
     function updateHero(movie) {
@@ -413,18 +478,18 @@
       topline.append(titleGroup);
       if (movie.vote_average) topline.append(makeElement("span", "rating", `★ ${Number(movie.vote_average).toFixed(1)}`));
       const actions = makeElement("div", "card-actions");
-      const detailsButton = makeElement("button", "text-button", "Details");
-      detailsButton.type = "button";
-      detailsButton.dataset.details = String(id);
+      const watchButton = makeElement("button", "text-button", "Watch now");
+      watchButton.type = "button";
+      watchButton.dataset.watchNow = String(id);
       const saveButton = makeElement("button", "save-button");
       saveButton.type = "button";
       saveButton.dataset.saveMovie = String(id);
       saveButton.setAttribute("aria-pressed", String(saved));
-      saveButton.setAttribute("aria-label", `${saved ? "Remove" : "Add"} ${title} ${saved ? "from" : "to"} My List`);
-      saveButton.title = saved ? "Remove from My List" : "Add to My List";
-      saveButton.append(makeElement("span", "visually-hidden", saved ? "Saved" : "Save"));
+      saveButton.setAttribute("aria-label", `${saved ? "Remove" : "Add"} ${title} ${saved ? "from" : "to"} Watch Later`);
+      saveButton.title = saved ? "Remove from Watch Later" : "Add to Watch Later";
+      saveButton.append(makeElement("span", "", saved ? "Saved" : "Watch later"));
       saveButton.insertAdjacentHTML("afterbegin", '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4.8c0-.4.4-.8.8-.8h10.4c.4 0 .8.4.8.8v15l-6-3.8-6 3.8v-15Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>');
-      actions.append(detailsButton, saveButton);
+      actions.append(watchButton, saveButton);
       body.append(topline, actions);
       article.append(openButton, poster, body);
       movieGrid.append(article);
@@ -434,7 +499,7 @@
       if (!append) movieGrid.replaceChildren();
       currentMovies = append ? [...currentMovies, ...movies] : movies;
       if (!movies.length && !append) {
-        if (activeView === "list") createEmptyState("Your list is empty.", "Save a movie and it will appear here.");
+        if (activeView === "list") createEmptyState("Watch Later is empty.", "Save a movie and it will appear here.");
         else createEmptyState("No movies found.", "Try another search or browse popular titles.");
       } else {
         movies.forEach(addMovieCard);
@@ -465,13 +530,19 @@
     }
 
     function setView(view) {
+      if (new URL(window.location.href).searchParams.has("watch")) {
+        history.replaceState({ view }, "", window.location.pathname);
+      }
+      activeWatchMovie = null;
+      watchPage.hidden = true;
+      catalogSection.hidden = false;
       activeView = view;
       updateNavigation();
       searchInput.value = "";
       clearTimeout(searchTimer);
       if (view === "list") {
         hero.hidden = true;
-        catalogHeading.textContent = "My List";
+        catalogHeading.textContent = "Watch Later";
         catalogNote.textContent = "Your saved titles are stored in this browser.";
         loadMoreButton.hidden = true;
         setStatus("");
@@ -579,6 +650,92 @@
       detailsContent.append(poster, info);
     }
 
+    function renderWatchPage(movie) {
+      activeWatchMovie = movie;
+      const title = movie.title || movie.original_title || "Untitled movie";
+      watchTitle.textContent = title;
+      watchOverview.textContent = movie.overview || "No overview is available for this title.";
+      watchPlayerTitle.textContent = title;
+      watchMeta.replaceChildren();
+      const year = (movie.release_date || "").slice(0, 4);
+      if (year) watchMeta.append(makeElement("span", "", year));
+      if (movie.runtime) watchMeta.append(makeElement("span", "", `${movie.runtime} min`));
+      if (movie.vote_average) watchMeta.append(makeElement("span", "", `★ ${Number(movie.vote_average).toFixed(1)} / 10`));
+      (movie.genres || []).forEach(genre => watchMeta.append(makeElement("span", "", genre.name)));
+
+      const posterUrl = imageUrl(movie.poster_path, "w500");
+      watchPoster.hidden = !posterUrl;
+      watchPosterFallback.hidden = Boolean(posterUrl);
+      if (posterUrl) {
+        watchPoster.src = posterUrl;
+        watchPoster.alt = `${title} poster`;
+        watchPoster.onerror = () => {
+          watchPoster.hidden = true;
+          watchPosterFallback.hidden = false;
+        };
+      } else {
+        watchPoster.removeAttribute("src");
+        watchPosterFallback.textContent = "AF";
+      }
+      updateWatchLaterButton(movie);
+    }
+
+    async function openWatchPage(movieId, pushState = true) {
+      const id = Number(movieId);
+      if (!Number.isInteger(id) || id < 1) return;
+      if (activeView !== "watch") watchReturnView = activeView;
+
+      const cachedMovie = currentMovies.find(movie => Number(movie.id) === id) || savedMovies.get(id);
+      const movie = cachedMovie || { id, title: "Loading movie…" };
+      activeWatchMovie = movie;
+      activeView = "watch";
+      updateNavigation();
+      hero.hidden = true;
+      catalogSection.hidden = true;
+      watchPage.hidden = false;
+      if (pushState) {
+        const path = `${window.location.pathname}?watch=${encodeURIComponent(id)}`;
+        history.pushState({ view: "watch", movieId: id }, "", path);
+      }
+      renderWatchPage(movie);
+      if (!cachedMovie) watchOverview.textContent = "Loading movie details…";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      const sequence = ++requestSequence;
+      try {
+        const details = await fetchTmdb(`/movie/${id}`);
+        if (sequence !== requestSequence || activeView !== "watch") return;
+        renderWatchPage({ ...movie, ...details });
+      } catch (error) {
+        if (sequence === requestSequence && activeView === "watch") {
+          watchOverview.textContent = movie.overview || "Movie details are temporarily unavailable.";
+          watchPlayerStatus.textContent = `${error.message} Playback will appear here when an authorized source is available.`;
+        }
+      }
+    }
+
+    function returnToCatalog() {
+      const view = watchReturnView === "watch" ? "popular" : watchReturnView;
+      const query = searchInput.value.trim();
+      if (new URL(window.location.href).searchParams.has("watch")) {
+        history.replaceState({ view }, "", window.location.pathname);
+      }
+      activeWatchMovie = null;
+      watchPage.hidden = true;
+      catalogSection.hidden = false;
+      if (view === "search" && query) {
+        activeView = "search";
+        updateNavigation();
+        hero.hidden = true;
+        catalogHeading.textContent = "Search results";
+        catalogNote.textContent = `Results for “${query}”`;
+        searchMovies(query);
+      } else {
+        setView(view === "list" ? "list" : "popular");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
     function closeDialog(dialog) {
       if (dialog?.open) dialog.close();
     }
@@ -590,6 +747,12 @@
         return;
       }
 
+      const watchButton = event.target.closest("[data-watch-now]");
+      if (watchButton) {
+        openWatchPage(watchButton.dataset.watchNow);
+        return;
+      }
+
       const detailsButton = event.target.closest("[data-details]");
       if (detailsButton) {
         showDetails(detailsButton.dataset.details);
@@ -598,13 +761,17 @@
 
       const saveButton = event.target.closest("[data-save-movie]");
       if (saveButton) {
-        const movie = currentMovies.find(item => Number(item.id) === Number(saveButton.dataset.saveMovie));
+        const movieId = Number(saveButton.dataset.saveMovie);
+        const movie = currentMovies.find(item => Number(item.id) === movieId)
+          || savedMovies.get(movieId)
+          || (Number(activeWatchMovie?.id) === movieId ? activeWatchMovie : null);
         if (movie) {
-          if (savedMovies.has(Number(movie.id))) savedMovies.delete(Number(movie.id));
-          else savedMovies.set(Number(movie.id), movie);
+          if (savedMovies.has(movieId)) savedMovies.delete(movieId);
+          else savedMovies.set(movieId, movie);
           saveMovies();
           updateListCount();
           if (activeView === "list") renderMovies([...savedMovies.values()]);
+          else if (activeView === "watch") updateWatchLaterButton(activeWatchMovie);
           else renderMovies(currentMovies);
         }
         return;
@@ -633,9 +800,18 @@
       if (event.target === detailsDialog) closeDialog(detailsDialog);
     });
 
+    document.querySelector("#watch-back").addEventListener("click", returnToCatalog);
+    window.addEventListener("popstate", () => {
+      const movieId = new URL(window.location.href).searchParams.get("watch");
+      if (movieId && /^\d+$/.test(movieId)) openWatchPage(movieId, false);
+      else if (activeView === "watch") returnToCatalog();
+    });
+
     updateListCount();
     updateHero(null);
-    loadPopular(false);
+    const initialWatchId = new URL(window.location.href).searchParams.get("watch");
+    if (initialWatchId && /^\d+$/.test(initialWatchId)) openWatchPage(initialWatchId, false);
+    else loadPopular(false);
   </script>
 </body>
 </html>
