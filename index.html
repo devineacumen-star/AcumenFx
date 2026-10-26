@@ -214,10 +214,9 @@
     <div class="header-tools">
       <label class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <input id="catalog-search" class="search-input" type="search" placeholder="Search movies" aria-label="Search movies on TMDB" autocomplete="off">
+        <input id="catalog-search" class="search-input" type="search" placeholder="Search movies" aria-label="Search movies" autocomplete="off">
       </label>
       <span id="list-count" class="list-count" aria-label="Saved titles">0</span>
-      <button id="connect-tmdb" class="button button-secondary connect-button" type="button">Connect TMDB</button>
     </div>
   </header>
 
@@ -228,7 +227,7 @@
         <p id="hero-kicker" class="eyebrow">AcumenFx Movie Guide</p>
         <h1 id="hero-title">Find your next favorite film</h1>
         <div id="hero-meta" class="hero-meta"></div>
-        <p id="hero-copy" class="hero-copy">Connect your TMDB API key to load popular movies, search titles, and view movie details.</p>
+        <p id="hero-copy" class="hero-copy">Explore popular movies, search titles, and view details from one place.</p>
         <div class="hero-actions">
           <button id="hero-details" class="button button-primary" type="button" data-details="" hidden>View details</button>
         </div>
@@ -243,7 +242,7 @@
         </div>
         <p class="section-note" id="catalog-note">Movie information and posters provided by TMDB.</p>
       </div>
-      <p id="results-status" class="status-message" role="status" aria-live="polite">Connect a TMDB API key to load the catalog.</p>
+      <p id="results-status" class="status-message" role="status" aria-live="polite">Connecting to the movie catalog…</p>
       <div id="movie-grid" class="catalog" aria-live="polite"></div>
       <div class="hero-actions"><button id="load-more" class="button button-secondary" type="button" hidden>Load more</button></div>
     </section>
@@ -258,26 +257,6 @@
     </aside>
   </footer>
 
-  <dialog id="tmdb-dialog" class="player-dialog key-dialog" aria-labelledby="tmdb-dialog-title">
-    <div class="dialog-top">
-      <h2 id="tmdb-dialog-title" class="dialog-title">Connect to TMDB</h2>
-      <button class="close-button" type="button" data-close-dialog="tmdb-dialog" aria-label="Close settings">
-        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <p>Enter your TMDB API Key (v3) to load popular movies and search. <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">Request a key in your TMDB account settings.</a></p>
-    <form id="tmdb-form">
-      <label class="key-field" for="tmdb-key">TMDB API Key
-        <input id="tmdb-key" name="key" type="password" autocomplete="off" spellcheck="false" required>
-      </label>
-      <p class="key-warning">This public static demo stores the key only in this browser tab. API requests are still visible to that browser. Don't enter a password or a key you don't control.</p>
-      <div class="key-actions">
-        <button class="button button-primary" type="submit">Connect</button>
-        <button id="disconnect-tmdb" class="button button-secondary" type="button">Clear key</button>
-      </div>
-    </form>
-  </dialog>
-
   <dialog id="details-dialog" class="player-dialog" aria-labelledby="details-title">
     <div class="dialog-top">
       <h2 id="details-title" class="dialog-title">Movie details</h2>
@@ -290,9 +269,8 @@
   </dialog>
 
   <script>
-    const apiBase = "https://api.themoviedb.org/3";
+    const apiBase = "https://acumenfx-tmdb.devineacumen.workers.dev";
     const imageBase = "https://image.tmdb.org/t/p";
-    const apiKeyStorage = "acumenfx-tmdb-key";
     const watchlistStorage = "acumenfx-tmdb-watchlist";
     const movieGrid = document.querySelector("#movie-grid");
     const hero = document.querySelector(".hero");
@@ -307,12 +285,9 @@
     const listCount = document.querySelector("#list-count");
     const resultsStatus = document.querySelector("#results-status");
     const loadMoreButton = document.querySelector("#load-more");
-    const tmdbDialog = document.querySelector("#tmdb-dialog");
     const detailsDialog = document.querySelector("#details-dialog");
     const detailsContent = document.querySelector("#details-content");
-    const keyInput = document.querySelector("#tmdb-key");
     const viewButtons = [...document.querySelectorAll("[data-view]")];
-    let apiKey = readApiKey();
     let activeView = "popular";
     let currentMovies = [];
     let currentPage = 1;
@@ -320,14 +295,6 @@
     let requestSequence = 0;
     let searchTimer;
     let savedMovies = readSavedMovies();
-
-    function readApiKey() {
-      try {
-        return sessionStorage.getItem(apiKeyStorage) || "";
-      } catch {
-        return "";
-      }
-    }
 
     function readSavedMovies() {
       try {
@@ -363,17 +330,11 @@
       return element;
     }
 
-    function createEmptyState(title, message, connect = false) {
+    function createEmptyState(title, message) {
       movieGrid.replaceChildren();
       const empty = makeElement("p", "empty-state");
       const strong = makeElement("strong", "", title);
       empty.append(strong, document.createTextNode(message));
-      if (connect) {
-        const button = makeElement("button", "text-button", "Connect TMDB");
-        button.type = "button";
-        button.addEventListener("click", openKeyDialog);
-        empty.append(document.createTextNode(" "), button);
-      }
       movieGrid.append(empty);
     }
 
@@ -393,7 +354,7 @@
       if (!movie) {
         heroArt.hidden = true;
         heroTitle.textContent = "Find your next favorite film";
-        heroCopy.textContent = apiKey ? "Explore popular movies or search for a title." : "Connect your TMDB API key to load popular movies, search titles, and view movie details.";
+        heroCopy.textContent = "Explore popular movies, search titles, and view details from one place.";
         heroMeta.replaceChildren();
         heroDetails.hidden = true;
         return;
@@ -475,15 +436,23 @@
     }
 
     async function fetchTmdb(path, params = {}) {
-      if (!apiKey) throw new Error("Connect your TMDB API key to load movies.");
-      const url = new URL(`${apiBase}${path}`);
-      url.search = new URLSearchParams({ api_key: apiKey, language: "en-US", ...params }).toString();
+      let route;
+      if (path === "/movie/popular") route = "/api/movies/popular";
+      else if (path === "/search/movie") route = "/api/movies/search";
+      else {
+        const detailsMatch = path.match(/^\/movie\/(\d+)$/);
+        if (!detailsMatch) throw new Error("Unsupported movie request.");
+        route = `/api/movies/${detailsMatch[1]}`;
+      }
+      const url = new URL(`${apiBase}${route}`);
+      url.search = new URLSearchParams(params).toString();
       const response = await fetch(url);
       const result = await response.json().catch(() => ({}));
       if (!response.ok) {
-        if (response.status === 401) throw new Error("TMDB rejected this key. Check that you entered your API Key (v3 auth). ");
-        if (response.status === 429) throw new Error("TMDB request limit reached. Please wait a moment and try again.");
-        throw new Error(result.status_message || `TMDB request failed (${response.status}).`);
+        throw new Error(result?.error || result?.status_message || `Movie service request failed (${response.status}).`);
+      }
+      if (!result || typeof result !== "object") {
+        throw new Error("The movie service returned an invalid response. Check that the Cloudflare Worker is deployed with worker.js.");
       }
       return result;
     }
@@ -511,13 +480,6 @@
     }
 
     async function loadPopular(append = false) {
-      if (!apiKey) {
-        setStatus("Connect a TMDB API key to load the catalog.");
-        createEmptyState("Connect to TMDB", "Use your TMDB v3 API key to browse live movie information.", true);
-        updateHero(null);
-        loadMoreButton.hidden = true;
-        return false;
-      }
       const sequence = ++requestSequence;
       const page = append ? currentPage + 1 : 1;
       setStatus(append ? "Loading more popular movies…" : "Loading popular movies…");
@@ -539,7 +501,7 @@
       } catch (error) {
         if (sequence === requestSequence) {
           setStatus(error.message, "error");
-          if (!currentMovies.length) createEmptyState("Could not load movies.", error.message, !apiKey);
+          if (!currentMovies.length) createEmptyState("Could not load movies.", error.message);
           loadMoreButton.hidden = true;
         }
         return false;
@@ -549,10 +511,6 @@
     }
 
     async function searchMovies(query, page = 1, append = false) {
-      if (!apiKey) {
-        openKeyDialog();
-        return;
-      }
       const sequence = ++requestSequence;
       activeView = "search";
       updateNavigation();
@@ -581,10 +539,6 @@
     }
 
     async function showDetails(id) {
-      if (!apiKey) {
-        openKeyDialog();
-        return;
-      }
       const cachedMovie = currentMovies.find(movie => Number(movie.id) === Number(id)) || savedMovies.get(Number(id));
       detailsContent.replaceChildren(makeElement("p", "", "Loading movie details…"));
       detailsDialog.showModal();
@@ -616,12 +570,6 @@
       const originalTitle = movie.original_title && movie.original_title !== movie.title ? makeElement("p", "card-subtitle", `Original title: ${movie.original_title}`) : null;
       if (originalTitle) info.append(originalTitle);
       detailsContent.append(poster, info);
-    }
-
-    function openKeyDialog() {
-      keyInput.value = apiKey;
-      if (!tmdbDialog.open) tmdbDialog.showModal();
-      keyInput.focus();
     }
 
     function closeDialog(dialog) {
@@ -659,42 +607,11 @@
       if (closeButton) closeDialog(document.getElementById(closeButton.dataset.closeDialog));
     });
 
-    document.querySelector("#connect-tmdb").addEventListener("click", openKeyDialog);
-    document.querySelector("#tmdb-form").addEventListener("submit", async event => {
-      event.preventDefault();
-      apiKey = keyInput.value.trim();
-      if (!apiKey) return;
-      try {
-        sessionStorage.setItem(apiKeyStorage, apiKey);
-      } catch {
-        setStatus("This browser could not store your key for this tab.", "error");
-      }
-      const connected = await loadPopular(false);
-      if (connected) closeDialog(tmdbDialog);
-    });
-    document.querySelector("#disconnect-tmdb").addEventListener("click", () => {
-      apiKey = "";
-      sessionStorage.removeItem(apiKeyStorage);
-      keyInput.value = "";
-      closeDialog(tmdbDialog);
-      activeView = "popular";
-      updateNavigation();
-      loadPopular(false);
-    });
-
     searchInput.addEventListener("input", () => {
       const query = searchInput.value.trim();
       clearTimeout(searchTimer);
       if (!query) {
         if (activeView === "search") setView("popular");
-        return;
-      }
-      if (!apiKey) {
-        activeView = "search";
-        updateNavigation();
-        hero.hidden = true;
-        catalogHeading.textContent = "Search results";
-        createEmptyState("Connect to search TMDB.", "Enter your API key to search the movie catalog.", true);
         return;
       }
       searchTimer = setTimeout(() => searchMovies(query), 350);
@@ -705,19 +622,13 @@
       else if (activeView === "popular") loadPopular(true);
     });
 
-    [tmdbDialog, detailsDialog].forEach(dialog => {
-      dialog.addEventListener("click", event => {
-        if (event.target === dialog) closeDialog(dialog);
-      });
+    detailsDialog.addEventListener("click", event => {
+      if (event.target === detailsDialog) closeDialog(detailsDialog);
     });
 
     updateListCount();
     updateHero(null);
-    if (apiKey) loadPopular(false);
-    else {
-      setStatus("Connect a TMDB API key to load the catalog.");
-      createEmptyState("Connect to TMDB", "Use your TMDB v3 API key to browse live movie information.", true);
-    }
+    loadPopular(false);
   </script>
 </body>
 </html>
