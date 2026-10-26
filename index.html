@@ -24,6 +24,7 @@
     }
 
     * { box-sizing: border-box; }
+    [hidden] { display: none !important; }
     html { min-width: 320px; background: #111816; scroll-behavior: smooth; }
     body { min-width: 320px; min-height: 100vh; margin: 0; background: #111816; }
     body.dialog-open { overflow: hidden; }
@@ -68,6 +69,7 @@
       background: #243b32;
     }
     .hero-art { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 39%; }
+    .hero-art[hidden] { display: none; }
     .hero::before { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, #111816f5 0%, #111816d9 32%, #11181665 69%, #11181618 100%), linear-gradient(0deg, #111816 0%, #11181600 65%); content: ""; }
     .hero-content { width: min(100%, 1280px); margin: 0 auto; padding: 90px clamp(22px, 7vw, 104px) 72px; animation: arrive .7s ease-out both; }
     @keyframes arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
@@ -116,6 +118,27 @@
     .save-button svg { width: 15px; height: 15px; }
     .empty-state { grid-column: 1 / -1; border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
     .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 16px; }
+    .status-message { min-height: 20px; margin: 0 0 14px; color: var(--muted); font-size: 12px; }
+    .status-message[data-state="error"] { color: #ffb3a6; }
+    .poster-no-image { height: 100%; min-height: 150px; display: grid; place-items: center; color: #a5b2a7; background: linear-gradient(135deg, #293a31, #18221d); font-family: Georgia, "Times New Roman", serif; font-size: 32px; }
+    .connect-button { min-height: 36px; padding: 0 12px; font-size: 12px; }
+    .tmdb-credit { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 18px; border-top: 1px solid var(--line); padding: 22px 0; }
+    .tmdb-logo-wrap { width: 46px; height: 46px; display: grid; place-items: center; border-radius: 4px; background: #fff; }
+    .tmdb-logo { width: 38px; height: 38px; display: block; object-fit: contain; }
+    .tmdb-credit p { max-width: 780px; margin: 0; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .tmdb-credit a { color: var(--green); }
+    .key-dialog { width: min(92vw, 500px); padding: 0 20px 20px; }
+    .key-dialog p { color: var(--muted); font-size: 13px; line-height: 1.65; }
+    .key-field { display: grid; gap: 7px; margin: 18px 0 12px; color: var(--ink); font-size: 12px; font-weight: 700; }
+    .key-field input { height: 42px; border: 1px solid var(--line); border-radius: 5px; padding: 0 11px; color: var(--ink); background: #ffffff08; }
+    .key-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
+    .key-warning { font-size: 11px !important; }
+    .detail-content { display: grid; grid-template-columns: minmax(130px, 230px) 1fr; gap: 22px; padding: 0 18px 20px; }
+    .details-poster { width: 100%; max-height: 340px; aspect-ratio: 2 / 3; border-radius: 4px; object-fit: cover; background: var(--surface-raised); }
+    .details-overview { color: #d7ddd6 !important; }
+    .details-facts { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; color: var(--muted); font-size: 11px; }
+    .details-facts span { border: 1px solid var(--line); border-radius: 3px; padding: 5px 7px; }
+    .detail-credit { margin: 0; padding: 0 18px 18px; color: var(--muted); font-size: 10px; }
 
     .about-strip { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px; margin: 48px 0 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 0; }
     .about-strip strong { display: block; margin-bottom: 5px; font-size: 13px; }
@@ -145,6 +168,7 @@
       .content { padding: 0 24px 54px; }
       .catalog { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
       footer { padding-right: 24px; padding-left: 24px; }
+      .detail-content { grid-template-columns: minmax(105px, 180px) 1fr; gap: 16px; }
     }
     @media (max-width: 520px) {
       .site-header { flex-wrap: wrap; gap: 0 18px; padding-top: 11px; padding-bottom: 11px; }
@@ -171,6 +195,9 @@
       .about-strip { grid-template-columns: 1fr; gap: 12px; }
       .about-link { white-space: normal; }
       footer { flex-direction: column; gap: 8px; }
+      .tmdb-credit { grid-template-columns: 1fr; gap: 12px; }
+      .detail-content { grid-template-columns: 1fr; }
+      .details-poster { width: min(45vw, 170px); }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
@@ -181,38 +208,29 @@
   <header class="site-header">
     <a class="wordmark" href="#home" aria-label="AcumenFx home"><span class="mark" aria-hidden="true">A</span>ACUMENFX</a>
     <nav class="main-nav" aria-label="Main navigation">
-      <button class="nav-button" type="button" data-view="browse" aria-current="page">Browse</button>
+      <button class="nav-button" type="button" data-view="popular" aria-current="page">Popular</button>
       <button class="nav-button" type="button" data-view="list">My List</button>
     </nav>
     <div class="header-tools">
       <label class="search-wrap">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        <input id="catalog-search" class="search-input" type="search" placeholder="Search the library" aria-label="Search the licensed library">
+        <input id="catalog-search" class="search-input" type="search" placeholder="Search movies" aria-label="Search movies on TMDB" autocomplete="off">
       </label>
       <span id="list-count" class="list-count" aria-label="Saved titles">0</span>
+      <button id="connect-tmdb" class="button button-secondary connect-button" type="button">Connect TMDB</button>
     </div>
   </header>
 
   <main id="home">
     <section class="hero" aria-labelledby="hero-title">
-      <img class="hero-art" src="https://i.ytimg.com/vi/YE7VzlLtp-4/hqdefault.jpg" alt="Big Buck Bunny, a Blender Foundation open movie" fetchpriority="high">
+      <img id="hero-art" class="hero-art" alt="" fetchpriority="high" hidden>
       <div class="hero-content">
-        <p class="eyebrow">AcumenFx Open Film Library</p>
-        <h1 id="hero-title">Big Buck<br> Bunny</h1>
-        <div class="hero-meta">
-          <span>2008</span><span class="meta-dot" aria-hidden="true">/</span><span>9 min</span><span class="meta-dot" aria-hidden="true">/</span><span>Animation</span>
-          <span class="license-chip">CC BY 3.0</span>
-        </div>
-        <p class="hero-copy">A gentle giant sets out for a peaceful afternoon, until three mischievous rodents turn his day upside down. A complete open movie from the Blender Foundation.</p>
+        <p id="hero-kicker" class="eyebrow">AcumenFx Movie Guide</p>
+        <h1 id="hero-title">Find your next favorite film</h1>
+        <div id="hero-meta" class="hero-meta"></div>
+        <p id="hero-copy" class="hero-copy">Connect your TMDB API key to load popular movies, search titles, and view movie details.</p>
         <div class="hero-actions">
-          <button class="button button-primary" type="button" data-play="bbb">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.8c0-.8.9-1.3 1.6-.9l9.2 5.2a1 1 0 0 1 0 1.8l-9.2 5.2c-.7.4-1.6-.1-1.6-.9V5.8Z"/></svg>
-            Watch the film
-          </button>
-          <button class="button button-secondary" type="button" data-save="bbb" aria-pressed="false">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-            <span>Add to My List</span>
-          </button>
+          <button id="hero-details" class="button button-primary" type="button" data-details="" hidden>View details</button>
         </div>
       </div>
     </section>
@@ -220,181 +238,486 @@
     <section class="content catalog-section" aria-labelledby="catalog-heading">
       <div class="section-heading">
         <div>
-          <p class="eyebrow">Watch here</p>
-          <h2 id="catalog-heading">Licensed films</h2>
+          <p class="eyebrow">Movie discovery</p>
+          <h2 id="catalog-heading">Popular movies</h2>
         </div>
-        <p class="section-note" id="catalog-note">One film is ready to play. More titles appear here as AcumenFx gets streaming permission.</p>
+        <p class="section-note" id="catalog-note">Movie information and posters provided by TMDB.</p>
       </div>
-      <div id="catalog" class="catalog" aria-live="polite"></div>
-      <aside class="about-strip" aria-label="Film attribution">
-        <div>
-          <strong>Open film, properly credited</strong>
-          <p>Big Buck Bunny is by Blender Foundation and is licensed under Creative Commons Attribution 3.0. The complete film is shown with its credits. <a href="https://peach.blender.org/about/">Read the license and attribution details.</a></p>
-        </div>
-        <a class="about-link" href="https://peach.blender.org/">About the film at peach.blender.org</a>
-      </aside>
+      <p id="results-status" class="status-message" role="status" aria-live="polite">Connect a TMDB API key to load the catalog.</p>
+      <div id="movie-grid" class="catalog" aria-live="polite"></div>
+      <div class="hero-actions"><button id="load-more" class="button button-secondary" type="button" hidden>Load more</button></div>
     </section>
   </main>
 
   <footer>
-    <span>AcumenFx is an independent film library.</span>
-    <span>Only authorized titles are playable here.</span>
+    <aside class="tmdb-credit" aria-label="TMDB attribution">
+      <a class="tmdb-logo-wrap" href="https://www.themoviedb.org/" target="_blank" rel="noreferrer" aria-label="The Movie Database">
+        <img class="tmdb-logo" src="https://www.themoviedb.org/assets/v4/logos/v2/blue_square_1-5bdc75aaebeb75dc7ae79426ddd9be3b2be1e342510f8202baf6bffa71d7f5c4.svg" alt="TMDB">
+      </a>
+      <p>This product uses the TMDB API but is not endorsed or certified by TMDB. Movie data and images are for this non-commercial discovery demo only. TMDB metadata does not include permission to stream movies. <a href="https://developer.themoviedb.org/docs/faq" target="_blank" rel="noreferrer">TMDB API terms and attribution</a></p>
+    </aside>
   </footer>
 
-  <dialog id="player-dialog" class="player-dialog" aria-labelledby="dialog-title">
+  <dialog id="tmdb-dialog" class="player-dialog key-dialog" aria-labelledby="tmdb-dialog-title">
     <div class="dialog-top">
-      <h2 id="dialog-title" class="dialog-title">Big Buck Bunny</h2>
-      <button id="close-player" class="close-button" type="button" aria-label="Close player">
+      <h2 id="tmdb-dialog-title" class="dialog-title">Connect to TMDB</h2>
+      <button class="close-button" type="button" data-close-dialog="tmdb-dialog" aria-label="Close settings">
         <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <iframe id="video-frame" class="video-frame" title="Big Buck Bunny full film" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-    <p class="player-credit">Big Buck Bunny by Blender Foundation. Licensed under <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a>. The embedded video is served by the official Blender Foundation YouTube upload.</p>
+    <p>Enter your TMDB API Key (v3) to load popular movies and search. <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noreferrer">Request a key in your TMDB account settings.</a></p>
+    <form id="tmdb-form">
+      <label class="key-field" for="tmdb-key">TMDB API Key
+        <input id="tmdb-key" name="key" type="password" autocomplete="off" spellcheck="false" required>
+      </label>
+      <p class="key-warning">This public static demo stores the key only in this browser tab. API requests are still visible to that browser. Don't enter a password or a key you don't control.</p>
+      <div class="key-actions">
+        <button class="button button-primary" type="submit">Connect</button>
+        <button id="disconnect-tmdb" class="button button-secondary" type="button">Clear key</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="details-dialog" class="player-dialog" aria-labelledby="details-title">
+    <div class="dialog-top">
+      <h2 id="details-title" class="dialog-title">Movie details</h2>
+      <button class="close-button" type="button" data-close-dialog="details-dialog" aria-label="Close movie details">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <div id="details-content" class="detail-content"></div>
+    <p class="detail-credit">Movie details and images provided by TMDB. This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
   </dialog>
 
   <script>
-    const film = {
-      id: "bbb",
-      title: "Big Buck Bunny",
-      creator: "Blender Foundation",
-      year: "2008",
-      duration: "9 min",
-      category: "Animation",
-      rating: "Open film",
-      poster: "https://i.ytimg.com/vi/YE7VzlLtp-4/hqdefault.jpg",
-      videoId: "YE7VzlLtp-4"
-    };
-
-    const catalog = document.querySelector("#catalog");
+    const apiBase = "https://api.themoviedb.org/3";
+    const imageBase = "https://image.tmdb.org/t/p";
+    const apiKeyStorage = "acumenfx-tmdb-key";
+    const watchlistStorage = "acumenfx-tmdb-watchlist";
+    const movieGrid = document.querySelector("#movie-grid");
     const hero = document.querySelector(".hero");
+    const heroArt = document.querySelector("#hero-art");
+    const heroTitle = document.querySelector("#hero-title");
+    const heroCopy = document.querySelector("#hero-copy");
+    const heroMeta = document.querySelector("#hero-meta");
+    const heroDetails = document.querySelector("#hero-details");
     const catalogHeading = document.querySelector("#catalog-heading");
     const catalogNote = document.querySelector("#catalog-note");
     const searchInput = document.querySelector("#catalog-search");
     const listCount = document.querySelector("#list-count");
-    const playerDialog = document.querySelector("#player-dialog");
-    const videoFrame = document.querySelector("#video-frame");
+    const resultsStatus = document.querySelector("#results-status");
+    const loadMoreButton = document.querySelector("#load-more");
+    const tmdbDialog = document.querySelector("#tmdb-dialog");
+    const detailsDialog = document.querySelector("#details-dialog");
+    const detailsContent = document.querySelector("#details-content");
+    const keyInput = document.querySelector("#tmdb-key");
     const viewButtons = [...document.querySelectorAll("[data-view]")];
-    let activeView = "browse";
-    let savedTitles = readSavedTitles();
+    let apiKey = readApiKey();
+    let activeView = "popular";
+    let currentMovies = [];
+    let currentPage = 1;
+    let totalPages = 1;
+    let requestSequence = 0;
+    let searchTimer;
+    let savedMovies = readSavedMovies();
 
-    function readSavedTitles() {
+    function readApiKey() {
       try {
-        const storedTitles = JSON.parse(localStorage.getItem("acumenfx-watchlist") || "[]");
-        return new Set(Array.isArray(storedTitles) ? storedTitles : []);
+        return sessionStorage.getItem(apiKeyStorage) || "";
       } catch {
-        return new Set();
+        return "";
       }
     }
 
-    function saveTitles() {
+    function readSavedMovies() {
       try {
-        localStorage.setItem("acumenfx-watchlist", JSON.stringify([...savedTitles]));
+        const records = JSON.parse(localStorage.getItem(watchlistStorage) || "[]");
+        if (!Array.isArray(records)) return new Map();
+        return new Map(records.filter(movie => movie && typeof movie === "object" && Number.isInteger(Number(movie.id))).map(movie => [Number(movie.id), movie]));
       } catch {
-        return;
+        return new Map();
       }
     }
 
-    function renderCatalog() {
-      const query = searchInput.value.trim().toLowerCase();
-      const matchesSearch = [film.title, film.creator, film.category].join(" ").toLowerCase().includes(query);
-      const isSaved = savedTitles.has(film.id);
-      hero.hidden = activeView === "list";
-      catalogHeading.textContent = activeView === "list" ? "My List" : "Licensed films";
-      catalogNote.textContent = activeView === "list"
-        ? "Your saved titles are stored in this browser."
-        : "One film is ready to play. More titles appear here as AcumenFx gets streaming permission.";
-      listCount.textContent = String(savedTitles.size);
-      listCount.setAttribute("aria-label", `${savedTitles.size} saved ${savedTitles.size === 1 ? "title" : "titles"}`);
+    function saveMovies() {
+      try {
+        localStorage.setItem(watchlistStorage, JSON.stringify([...savedMovies.values()]));
+      } catch {
+        setStatus("This browser could not save your list. Check its storage settings.", "error");
+      }
+    }
 
-      if (activeView === "list" && !isSaved) {
-        catalog.innerHTML = '<p class="empty-state"><strong>Your list is empty.</strong>Choose Browse to find a film, then add it here.</p>';
+    function setStatus(message, state = "") {
+      resultsStatus.textContent = message;
+      resultsStatus.dataset.state = state;
+    }
+
+    function imageUrl(path, size = "w500") {
+      return path ? `${imageBase}/${size}${path}` : "";
+    }
+
+    function makeElement(tag, className, text) {
+      const element = document.createElement(tag);
+      if (className) element.className = className;
+      if (text !== undefined) element.textContent = text;
+      return element;
+    }
+
+    function createEmptyState(title, message, connect = false) {
+      movieGrid.replaceChildren();
+      const empty = makeElement("p", "empty-state");
+      const strong = makeElement("strong", "", title);
+      empty.append(strong, document.createTextNode(message));
+      if (connect) {
+        const button = makeElement("button", "text-button", "Connect TMDB");
+        button.type = "button";
+        button.addEventListener("click", openKeyDialog);
+        empty.append(document.createTextNode(" "), button);
+      }
+      movieGrid.append(empty);
+    }
+
+    function updateListCount() {
+      listCount.textContent = String(savedMovies.size);
+      listCount.setAttribute("aria-label", `${savedMovies.size} saved ${savedMovies.size === 1 ? "title" : "titles"}`);
+    }
+
+    function updateNavigation() {
+      viewButtons.forEach(button => {
+        if (button.dataset.view === activeView) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+      });
+    }
+
+    function updateHero(movie) {
+      if (!movie) {
+        heroArt.hidden = true;
+        heroTitle.textContent = "Find your next favorite film";
+        heroCopy.textContent = apiKey ? "Explore popular movies or search for a title." : "Connect your TMDB API key to load popular movies, search titles, and view movie details.";
+        heroMeta.replaceChildren();
+        heroDetails.hidden = true;
         return;
       }
 
-      if (!matchesSearch) {
-        catalog.innerHTML = '<p class="empty-state"><strong>No matching title.</strong>Try another title, creator, or category.</p>';
+      heroTitle.textContent = movie.title || movie.original_title || "Untitled movie";
+      heroCopy.textContent = movie.overview || "No overview is available for this title.";
+      heroMeta.replaceChildren();
+      const year = (movie.release_date || "").slice(0, 4);
+      if (year) heroMeta.append(makeElement("span", "", year));
+      if (movie.vote_average) heroMeta.append(makeElement("span", "license-chip", `${Number(movie.vote_average).toFixed(1)} / 10`));
+      if (movie.original_language) heroMeta.append(makeElement("span", "", movie.original_language.toUpperCase()));
+      const backdrop = imageUrl(movie.backdrop_path || movie.poster_path, "w1280");
+      if (backdrop) {
+        heroArt.src = backdrop;
+        heroArt.alt = `${movie.title || movie.original_title || "Movie"} backdrop`;
+        heroArt.hidden = false;
+      } else {
+        heroArt.removeAttribute("src");
+        heroArt.hidden = true;
+      }
+      heroDetails.dataset.details = String(movie.id);
+      heroDetails.hidden = false;
+    }
+
+    function addMovieCard(movie) {
+      const id = Number(movie.id);
+      const title = movie.title || movie.original_title || "Untitled movie";
+      const saved = savedMovies.has(id);
+      const article = makeElement("article", "movie-card");
+      const poster = makeElement("div", "poster");
+      if (movie.poster_path) {
+        const image = makeElement("img");
+        image.src = imageUrl(movie.poster_path, "w500");
+        image.alt = `${title} poster`;
+        image.loading = "lazy";
+        image.addEventListener("error", () => poster.replaceChildren(makeElement("div", "poster-no-image", "AF")), { once: true });
+        poster.append(image);
+      } else {
+        poster.append(makeElement("div", "poster-no-image", "AF"));
+      }
+      const releaseYear = (movie.release_date || "").slice(0, 4) || "Release date unknown";
+      poster.append(makeElement("span", "poster-tag", "TMDB"));
+      const body = makeElement("div", "card-body");
+      const topline = makeElement("div", "card-topline");
+      const titleGroup = makeElement("div");
+      titleGroup.append(makeElement("h3", "card-title", title));
+      titleGroup.append(makeElement("p", "card-subtitle", releaseYear));
+      topline.append(titleGroup);
+      if (movie.vote_average) topline.append(makeElement("span", "rating", `★ ${Number(movie.vote_average).toFixed(1)}`));
+      const actions = makeElement("div", "card-actions");
+      const detailsButton = makeElement("button", "text-button", "Details");
+      detailsButton.type = "button";
+      detailsButton.dataset.details = String(id);
+      const saveButton = makeElement("button", "save-button");
+      saveButton.type = "button";
+      saveButton.dataset.saveMovie = String(id);
+      saveButton.setAttribute("aria-pressed", String(saved));
+      saveButton.setAttribute("aria-label", `${saved ? "Remove" : "Add"} ${title} ${saved ? "from" : "to"} My List`);
+      saveButton.title = saved ? "Remove from My List" : "Add to My List";
+      saveButton.append(makeElement("span", "visually-hidden", saved ? "Saved" : "Save"));
+      saveButton.insertAdjacentHTML("afterbegin", '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 4.8c0-.4.4-.8.8-.8h10.4c.4 0 .8.4.8.8v15l-6-3.8-6 3.8v-15Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>');
+      actions.append(detailsButton, saveButton);
+      body.append(topline, actions);
+      article.append(poster, body);
+      movieGrid.append(article);
+    }
+
+    function renderMovies(movies, append = false) {
+      if (!append) movieGrid.replaceChildren();
+      currentMovies = append ? [...currentMovies, ...movies] : movies;
+      if (!movies.length && !append) {
+        if (activeView === "list") createEmptyState("Your list is empty.", "Save a movie and it will appear here.");
+        else createEmptyState("No movies found.", "Try another search or browse popular titles.");
+      } else {
+        movies.forEach(addMovieCard);
+      }
+      updateListCount();
+    }
+
+    async function fetchTmdb(path, params = {}) {
+      if (!apiKey) throw new Error("Connect your TMDB API key to load movies.");
+      const url = new URL(`${apiBase}${path}`);
+      url.search = new URLSearchParams({ api_key: apiKey, language: "en-US", ...params }).toString();
+      const response = await fetch(url);
+      const result = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        if (response.status === 401) throw new Error("TMDB rejected this key. Check that you entered your API Key (v3 auth). ");
+        if (response.status === 429) throw new Error("TMDB request limit reached. Please wait a moment and try again.");
+        throw new Error(result.status_message || `TMDB request failed (${response.status}).`);
+      }
+      return result;
+    }
+
+    function setView(view) {
+      activeView = view;
+      updateNavigation();
+      searchInput.value = "";
+      clearTimeout(searchTimer);
+      if (view === "list") {
+        hero.hidden = true;
+        catalogHeading.textContent = "My List";
+        catalogNote.textContent = "Your saved titles are stored in this browser.";
+        loadMoreButton.hidden = true;
+        setStatus("");
+        renderMovies([...savedMovies.values()]);
+        window.scrollTo({ top: 0, behavior: "smooth" });
         return;
       }
-
-      catalog.innerHTML = `
-        <article class="movie-card">
-          <div class="poster">
-            <img src="${film.poster}" alt="Big Buck Bunny film artwork" loading="lazy">
-            <span class="poster-tag">CC BY 3.0</span>
-            <span class="poster-duration">${film.duration}</span>
-          </div>
-          <div class="card-body">
-            <div class="card-topline">
-              <div><h3 class="card-title">${film.title}</h3><p class="card-subtitle">${film.year} <span aria-hidden="true">·</span> ${film.category}</p></div>
-              <span class="rating">${film.rating}</span>
-            </div>
-            <div class="card-actions">
-              <button class="text-button" type="button" data-play="${film.id}">Play on AcumenFx</button>
-              <button class="save-button" type="button" data-save="${film.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Remove" : "Add"} ${film.title} ${isSaved ? "from" : "to"} My List" title="${isSaved ? "Remove from" : "Add to"} My List">
-                <svg viewBox="0 0 24 24" fill="${isSaved ? "currentColor" : "none"}" aria-hidden="true"><path d="M6 4.8c0-.4.4-.8.8-.8h10.4c.4 0 .8.4.8.8v15l-6-3.8-6 3.8v-15Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
-              </button>
-            </div>
-          </div>
-        </article>`;
+      hero.hidden = false;
+      catalogHeading.textContent = "Popular movies";
+      catalogNote.textContent = "Movie information and posters provided by TMDB.";
+      loadPopular(false);
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
-    function openPlayer() {
-      videoFrame.src = `https://www.youtube-nocookie.com/embed/${film.videoId}?autoplay=1&rel=0`;
-      playerDialog.showModal();
-      document.body.classList.add("dialog-open");
-      document.querySelector("#close-player").focus();
+    async function loadPopular(append = false) {
+      if (!apiKey) {
+        setStatus("Connect a TMDB API key to load the catalog.");
+        createEmptyState("Connect to TMDB", "Use your TMDB v3 API key to browse live movie information.", true);
+        updateHero(null);
+        loadMoreButton.hidden = true;
+        return false;
+      }
+      const sequence = ++requestSequence;
+      const page = append ? currentPage + 1 : 1;
+      setStatus(append ? "Loading more popular movies…" : "Loading popular movies…");
+      loadMoreButton.disabled = true;
+      try {
+        const data = await fetchTmdb("/movie/popular", { page: String(page), include_adult: "false" });
+        if (sequence !== requestSequence) return false;
+        currentPage = data.page || page;
+        totalPages = data.total_pages || 1;
+        activeView = "popular";
+        hero.hidden = false;
+        catalogHeading.textContent = "Popular movies";
+        catalogNote.textContent = "Movie information and posters provided by TMDB.";
+        if (!append) updateHero(data.results?.[0]);
+        renderMovies(data.results || [], append);
+        setStatus(`${data.total_results || currentMovies.length} movies from TMDB.`);
+        loadMoreButton.hidden = currentPage >= totalPages;
+        return true;
+      } catch (error) {
+        if (sequence === requestSequence) {
+          setStatus(error.message, "error");
+          if (!currentMovies.length) createEmptyState("Could not load movies.", error.message, !apiKey);
+          loadMoreButton.hidden = true;
+        }
+        return false;
+      } finally {
+        loadMoreButton.disabled = false;
+      }
     }
 
-    function closePlayer() {
-      if (playerDialog.open) playerDialog.close();
-      videoFrame.removeAttribute("src");
-      document.body.classList.remove("dialog-open");
+    async function searchMovies(query, page = 1, append = false) {
+      if (!apiKey) {
+        openKeyDialog();
+        return;
+      }
+      const sequence = ++requestSequence;
+      activeView = "search";
+      updateNavigation();
+      hero.hidden = true;
+      catalogHeading.textContent = "Search results";
+      catalogNote.textContent = `Results for “${query}”`;
+      setStatus(`Searching TMDB for “${query}”…`);
+      loadMoreButton.disabled = true;
+      try {
+        const data = await fetchTmdb("/search/movie", { query, page: String(page), include_adult: "false" });
+        if (sequence !== requestSequence) return;
+        currentPage = data.page || page;
+        totalPages = data.total_pages || 1;
+        renderMovies(data.results || [], append);
+        setStatus(`${data.total_results || 0} results for “${query}”.`);
+        loadMoreButton.hidden = currentPage >= totalPages;
+      } catch (error) {
+        if (sequence === requestSequence) {
+          setStatus(error.message, "error");
+          if (!append) createEmptyState("Search failed.", error.message);
+          loadMoreButton.hidden = true;
+        }
+      } finally {
+        loadMoreButton.disabled = false;
+      }
+    }
+
+    async function showDetails(id) {
+      if (!apiKey) {
+        openKeyDialog();
+        return;
+      }
+      const cachedMovie = currentMovies.find(movie => Number(movie.id) === Number(id)) || savedMovies.get(Number(id));
+      detailsContent.replaceChildren(makeElement("p", "", "Loading movie details…"));
+      detailsDialog.showModal();
+      try {
+        const details = await fetchTmdb(`/movie/${encodeURIComponent(id)}`);
+        document.querySelector("#details-title").textContent = details.title || "Movie details";
+        renderDetails(details, cachedMovie);
+      } catch (error) {
+        detailsContent.replaceChildren(makeElement("p", "empty-state", error.message));
+      }
+    }
+
+    function renderDetails(movie, fallback = {}) {
+      detailsContent.replaceChildren();
+      const poster = makeElement("img", "details-poster");
+      poster.alt = `${movie.title || "Movie"} poster`;
+      poster.src = imageUrl(movie.poster_path || fallback.poster_path, "w500");
+      poster.addEventListener("error", () => poster.replaceWith(makeElement("div", "poster-no-image", "AF")), { once: true });
+      const info = makeElement("div");
+      if (movie.tagline) info.append(makeElement("p", "eyebrow", movie.tagline));
+      info.append(makeElement("p", "details-overview", movie.overview || fallback.overview || "No overview is available."));
+      const facts = makeElement("div", "details-facts");
+      const year = (movie.release_date || "").slice(0, 4);
+      if (year) facts.append(makeElement("span", "", year));
+      if (movie.runtime) facts.append(makeElement("span", "", `${movie.runtime} min`));
+      if (movie.vote_average) facts.append(makeElement("span", "", `★ ${Number(movie.vote_average).toFixed(1)} / 10`));
+      (movie.genres || []).forEach(genre => facts.append(makeElement("span", "", genre.name)));
+      info.append(facts);
+      const originalTitle = movie.original_title && movie.original_title !== movie.title ? makeElement("p", "card-subtitle", `Original title: ${movie.original_title}`) : null;
+      if (originalTitle) info.append(originalTitle);
+      detailsContent.append(poster, info);
+    }
+
+    function openKeyDialog() {
+      keyInput.value = apiKey;
+      if (!tmdbDialog.open) tmdbDialog.showModal();
+      keyInput.focus();
+    }
+
+    function closeDialog(dialog) {
+      if (dialog?.open) dialog.close();
     }
 
     document.addEventListener("click", event => {
-      const playButton = event.target.closest("[data-play]");
-      if (playButton) openPlayer();
-
-      const saveButton = event.target.closest("[data-save]");
-      if (saveButton) {
-        if (savedTitles.has(film.id)) savedTitles.delete(film.id);
-        else savedTitles.add(film.id);
-        saveTitles();
-        renderCatalog();
-        document.querySelector("[data-save='bbb']")?.setAttribute("aria-pressed", String(savedTitles.has(film.id)));
-        const heroSaveText = document.querySelector(".hero-actions [data-save] span");
-        if (heroSaveText) heroSaveText.textContent = savedTitles.has(film.id) ? "Added to My List" : "Add to My List";
-      }
-
       const viewButton = event.target.closest("[data-view]");
       if (viewButton) {
-        activeView = viewButton.dataset.view;
-        searchInput.value = "";
-        viewButtons.forEach(button => {
-          if (button === viewButton) button.setAttribute("aria-current", "page");
-          else button.removeAttribute("aria-current");
-        });
-        renderCatalog();
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        setView(viewButton.dataset.view);
+        return;
       }
+
+      const detailsButton = event.target.closest("[data-details]");
+      if (detailsButton) {
+        showDetails(detailsButton.dataset.details);
+        return;
+      }
+
+      const saveButton = event.target.closest("[data-save-movie]");
+      if (saveButton) {
+        const movie = currentMovies.find(item => Number(item.id) === Number(saveButton.dataset.saveMovie));
+        if (movie) {
+          if (savedMovies.has(Number(movie.id))) savedMovies.delete(Number(movie.id));
+          else savedMovies.set(Number(movie.id), movie);
+          saveMovies();
+          updateListCount();
+          if (activeView === "list") renderMovies([...savedMovies.values()]);
+          else renderMovies(currentMovies);
+        }
+        return;
+      }
+
+      const closeButton = event.target.closest("[data-close-dialog]");
+      if (closeButton) closeDialog(document.getElementById(closeButton.dataset.closeDialog));
     });
 
-    searchInput.addEventListener("input", renderCatalog);
-    document.querySelector("#close-player").addEventListener("click", closePlayer);
-    playerDialog.addEventListener("close", () => {
-      videoFrame.removeAttribute("src");
-      document.body.classList.remove("dialog-open");
+    document.querySelector("#connect-tmdb").addEventListener("click", openKeyDialog);
+    document.querySelector("#tmdb-form").addEventListener("submit", async event => {
+      event.preventDefault();
+      apiKey = keyInput.value.trim();
+      if (!apiKey) return;
+      try {
+        sessionStorage.setItem(apiKeyStorage, apiKey);
+      } catch {
+        setStatus("This browser could not store your key for this tab.", "error");
+      }
+      const connected = await loadPopular(false);
+      if (connected) closeDialog(tmdbDialog);
     });
-    playerDialog.addEventListener("click", event => {
-      if (event.target === playerDialog) closePlayer();
-    });
-    document.querySelector(".hero-actions [data-save]").addEventListener("click", event => {
-      event.currentTarget.setAttribute("aria-pressed", String(savedTitles.has(film.id)));
+    document.querySelector("#disconnect-tmdb").addEventListener("click", () => {
+      apiKey = "";
+      sessionStorage.removeItem(apiKeyStorage);
+      keyInput.value = "";
+      closeDialog(tmdbDialog);
+      activeView = "popular";
+      updateNavigation();
+      loadPopular(false);
     });
 
-    renderCatalog();
-    document.querySelector(".hero-actions [data-save] span").textContent = savedTitles.has(film.id) ? "Added to My List" : "Add to My List";
-    document.querySelector(".hero-actions [data-save]").setAttribute("aria-pressed", String(savedTitles.has(film.id)));
+    searchInput.addEventListener("input", () => {
+      const query = searchInput.value.trim();
+      clearTimeout(searchTimer);
+      if (!query) {
+        if (activeView === "search") setView("popular");
+        return;
+      }
+      if (!apiKey) {
+        activeView = "search";
+        updateNavigation();
+        hero.hidden = true;
+        catalogHeading.textContent = "Search results";
+        createEmptyState("Connect to search TMDB.", "Enter your API key to search the movie catalog.", true);
+        return;
+      }
+      searchTimer = setTimeout(() => searchMovies(query), 350);
+    });
+
+    loadMoreButton.addEventListener("click", () => {
+      if (activeView === "search") searchMovies(searchInput.value.trim(), currentPage + 1, true);
+      else if (activeView === "popular") loadPopular(true);
+    });
+
+    [tmdbDialog, detailsDialog].forEach(dialog => {
+      dialog.addEventListener("click", event => {
+        if (event.target === dialog) closeDialog(dialog);
+      });
+    });
+
+    updateListCount();
+    updateHero(null);
+    if (apiKey) loadPopular(false);
+    else {
+      setStatus("Connect a TMDB API key to load the catalog.");
+      createEmptyState("Connect to TMDB", "Use your TMDB v3 API key to browse live movie information.", true);
+    }
   </script>
 </body>
 </html>
