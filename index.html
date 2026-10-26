@@ -110,6 +110,11 @@
     .watch-player strong { display: block; margin-bottom: 8px; color: var(--ink); font: 400 21px Georgia, "Times New Roman", serif; }
     .watch-player .play-mark { width: 42px; height: 42px; display: grid; place-items: center; margin: 0 auto 14px; border: 1px solid #ffffff40; border-radius: 50%; color: var(--accent-light); }
     .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
+    .catalog.catalog-groups { grid-template-columns: 1fr; gap: 30px; }
+    .catalog-group { min-width: 0; }
+    .catalog-group-heading { margin: 0 0 12px; font: 400 22px Georgia, "Times New Roman", serif; }
+    .catalog-rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(170px, 225px); gap: 14px; overflow-x: auto; overscroll-behavior-inline: contain; padding: 2px 2px 10px; scroll-snap-type: x proximity; scrollbar-color: #56645b transparent; }
+    .catalog-rail .movie-card { scroll-snap-align: start; }
     .movie-card { position: relative; min-width: 0; overflow: hidden; border: 1px solid #ffffff12; border-radius: 6px; background: var(--surface); transition: border-color .18s ease, transform .18s ease; }
     .movie-card:hover { transform: translateY(-3px); border-color: #ffffff40; }
     .movie-open-overlay { position: absolute; z-index: 1; inset: 0; width: 100%; border: 0; padding: 0; background: transparent; cursor: pointer; }
@@ -182,6 +187,7 @@
       .hero::before { background: linear-gradient(90deg, #111816e8 0%, #111816a6 70%, #11181655 100%), linear-gradient(0deg, #111816 0%, #11181600 70%); }
       .content { padding: 0 24px 54px; }
       .catalog { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+      .catalog-rail { grid-auto-columns: minmax(170px, 34vw); }
       footer { padding-right: 24px; padding-left: 24px; }
       .detail-content { grid-template-columns: minmax(105px, 180px) 1fr; gap: 16px; }
       .watch-page { padding-right: 24px; padding-left: 24px; }
@@ -205,6 +211,7 @@
       .section-heading { display: block; }
       .section-note { margin-top: 6px; line-height: 1.5; }
       .catalog { grid-template-columns: 1fr; }
+      .catalog-rail { grid-auto-columns: minmax(145px, 42vw); }
       .movie-card { display: grid; grid-template-columns: minmax(96px, 34%) 1fr; align-items: stretch; }
       .poster { height: auto; min-height: 0; aspect-ratio: 2 / 3; }
       .card-body { display: flex; flex-direction: column; justify-content: center; padding: 12px; }
@@ -350,6 +357,7 @@
     let currentPage = 1;
     let totalPages = 1;
     let requestSequence = 0;
+    let featuredMovieId = null;
     let watchReturnView = "popular";
     let activeWatchMovie = null;
     let searchTimer;
@@ -448,7 +456,7 @@
       heroDetails.hidden = false;
     }
 
-    function addMovieCard(movie) {
+    function addMovieCard(movie, target = movieGrid) {
       const id = Number(movie.id);
       const title = movie.title || movie.original_title || "Untitled movie";
       const saved = savedMovies.has(id);
@@ -492,17 +500,59 @@
       actions.append(watchButton, saveButton);
       body.append(topline, actions);
       article.append(openButton, poster, body);
-      movieGrid.append(article);
+      target.append(article);
+    }
+
+    function renderPopularGroups(movies) {
+      movieGrid.replaceChildren();
+      movieGrid.classList.add("catalog-groups");
+      const claimed = new Set(featuredMovieId === null ? [] : [featuredMovieId]);
+      const groups = [];
+
+      function addGroup(title, candidates) {
+        const items = candidates.filter(movie => !claimed.has(Number(movie.id)));
+        if (!items.length) return;
+        items.forEach(movie => claimed.add(Number(movie.id)));
+        groups.push({ title, movies: items });
+      }
+
+      addGroup("Trending now", movies.slice(0, 8));
+      addGroup("Top rated", [...movies].sort((left, right) => (right.vote_average || 0) - (left.vote_average || 0)).slice(0, 6));
+      addGroup("Action & adventure", movies.filter(movie => (movie.genre_ids || []).some(id => [12, 14, 28, 878].includes(id))));
+      addGroup("Comedy & animation", movies.filter(movie => (movie.genre_ids || []).some(id => [16, 35, 10751].includes(id))));
+      addGroup("Drama & mystery", movies.filter(movie => (movie.genre_ids || []).some(id => [18, 27, 53, 80, 9648].includes(id))));
+      addGroup("More to explore", movies);
+
+      if (!groups.length) {
+        createEmptyState("No movies found.", "Try another search or browse popular titles.");
+        return;
+      }
+
+      groups.forEach(group => {
+        const section = makeElement("section", "catalog-group");
+        section.append(makeElement("h3", "catalog-group-heading", group.title));
+        const rail = makeElement("div", "catalog-rail");
+        rail.setAttribute("aria-label", group.title);
+        group.movies.forEach(movie => addMovieCard(movie, rail));
+        section.append(rail);
+        movieGrid.append(section);
+      });
     }
 
     function renderMovies(movies, append = false) {
-      if (!append) movieGrid.replaceChildren();
       currentMovies = append ? [...currentMovies, ...movies] : movies;
+      if (activeView === "popular") {
+        renderPopularGroups(currentMovies);
+        updateListCount();
+        return;
+      }
+      movieGrid.classList.remove("catalog-groups");
+      if (!append) movieGrid.replaceChildren();
       if (!movies.length && !append) {
         if (activeView === "list") createEmptyState("Watch Later is empty.", "Save a movie and it will appear here.");
         else createEmptyState("No movies found.", "Try another search or browse popular titles.");
       } else {
-        movies.forEach(addMovieCard);
+        movies.forEach(movie => addMovieCard(movie));
       }
       updateListCount();
     }
@@ -571,7 +621,10 @@
         hero.hidden = false;
         catalogHeading.textContent = "Popular movies";
         catalogNote.textContent = "Movie information and posters provided by TMDB.";
-        if (!append) updateHero(data.results?.[0]);
+        if (!append) {
+          featuredMovieId = data.results?.length ? Number(data.results[Math.floor(Math.random() * data.results.length)].id) : null;
+          updateHero(data.results?.find(movie => Number(movie.id) === featuredMovieId));
+        }
         renderMovies(data.results || [], append);
         setStatus(`${data.total_results || currentMovies.length} movies from TMDB.`);
         loadMoreButton.hidden = currentPage >= totalPages;
