@@ -3,283 +3,387 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AcumenFx</title>
+  <meta name="theme-color" content="#111816">
+  <title>AcumenFx | Open Film Library</title>
   <style>
     :root {
-      color-scheme: light;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #202124;
-      background: #fff;
+      color-scheme: dark;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      color: #f4f4ec;
+      background: #111816;
       font-synthesis: none;
       text-rendering: optimizeLegibility;
+      --ink: #f4f4ec;
+      --muted: #a7b1a9;
+      --surface: #1b2420;
+      --surface-raised: #26322c;
+      --line: #39443d;
+      --accent: #ed765f;
+      --accent-light: #ffb08d;
+      --green: #a9d7a9;
     }
 
     * { box-sizing: border-box; }
+    html { min-width: 320px; background: #111816; scroll-behavior: smooth; }
+    body { min-width: 320px; min-height: 100vh; margin: 0; background: #111816; }
+    body.dialog-open { overflow: hidden; }
+    button, input { font: inherit; }
+    button { color: inherit; }
+    a { color: inherit; }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--accent-light); outline-offset: 3px; }
 
-    html, body { min-width: 320px; min-height: 100%; margin: 0; }
-
-    body {
-      min-height: 100vh;
-      min-height: 100dvh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    a { color: inherit; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    .topbar {
-      height: 60px;
-      flex: 0 0 60px;
+    .site-header {
+      position: sticky;
+      z-index: 5;
+      top: 0;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
-      gap: 20px;
-      padding: 0 10px 0 20px;
-      font-size: 13px;
+      gap: 38px;
+      min-height: 72px;
+      padding: 0 clamp(18px, 5vw, 76px);
+      border-bottom: 1px solid #ffffff12;
+      background: #111816ed;
+      backdrop-filter: blur(14px);
     }
+    .wordmark { display: inline-flex; align-items: center; gap: 10px; flex: 0 0 auto; font-size: 17px; font-weight: 800; letter-spacing: .08em; text-decoration: none; }
+    .mark { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 9px 9px 9px 2px; color: #151a17; background: var(--accent); font-size: 16px; }
+    .main-nav { display: flex; align-items: center; gap: 24px; }
+    .nav-button { border: 0; padding: 8px 0; color: var(--muted); background: none; font-size: 14px; cursor: pointer; }
+    .nav-button[aria-current="page"], .nav-button:hover { color: var(--ink); }
+    .nav-button[aria-current="page"] { box-shadow: inset 0 -2px var(--accent); }
+    .header-tools { display: flex; align-items: center; gap: 14px; margin-left: auto; }
+    .search-wrap { position: relative; width: min(26vw, 310px); min-width: 190px; }
+    .search-wrap svg { position: absolute; top: 50%; left: 13px; width: 17px; height: 17px; transform: translateY(-50%); color: var(--muted); pointer-events: none; }
+    .search-input { width: 100%; height: 40px; border: 1px solid var(--line); border-radius: 7px; padding: 0 13px 0 39px; color: var(--ink); background: #ffffff08; font-size: 13px; }
+    .search-input::placeholder { color: #a7b1a9b8; }
+    .list-count { min-width: 36px; height: 36px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 7px; color: var(--green); font-size: 12px; font-variant-numeric: tabular-nums; }
 
-    .apps {
-      width: 40px;
-      height: 40px;
-      display: grid;
-      place-content: center;
-      grid-template-columns: repeat(3, 4px);
-      grid-template-rows: repeat(3, 4px);
-      gap: 3px;
-      border-radius: 50%;
-    }
-    .apps:hover { background: #f0f1f1; }
-    .apps i { width: 4px; height: 4px; border-radius: 50%; background: #5f6368; }
-
-    .signin {
-      height: 40px;
-      min-width: 84px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 22px;
-      padding: 0 16px;
-      color: #fff;
-      background: #0b57d0;
-      font-size: 14px;
-      letter-spacing: .1px;
-    }
-    .signin:hover { background: #1b66d8; text-decoration: none; box-shadow: 0 1px 2px #0003; }
-
-    main {
-      flex: 1 0 auto;
+    .hero {
+      position: relative;
+      min-height: min(620px, 70vw);
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 0 24px 32px;
+      align-items: flex-end;
+      overflow: hidden;
+      isolation: isolate;
+      background: #243b32;
     }
+    .hero-art { position: absolute; z-index: -2; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 39%; }
+    .hero::before { position: absolute; z-index: -1; inset: 0; background: linear-gradient(90deg, #111816f5 0%, #111816d9 32%, #11181665 69%, #11181618 100%), linear-gradient(0deg, #111816 0%, #11181600 65%); content: ""; }
+    .hero-content { width: min(100%, 1280px); margin: 0 auto; padding: 90px clamp(22px, 7vw, 104px) 72px; animation: arrive .7s ease-out both; }
+    @keyframes arrive { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+    .eyebrow { display: flex; align-items: center; gap: 9px; margin: 0 0 16px; color: var(--accent-light); font-size: 11px; font-weight: 800; letter-spacing: .15em; text-transform: uppercase; }
+    .eyebrow::before { width: 22px; height: 2px; background: var(--accent); content: ""; }
+    h1, h2, h3, p { margin-top: 0; }
+    .hero h1 { max-width: 650px; margin-bottom: 13px; font-family: Georgia, "Times New Roman", serif; font-size: clamp(42px, 7vw, 82px); font-weight: 400; line-height: .99; }
+    .hero-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 19px; color: #e5e9e4; font-size: 13px; }
+    .meta-dot { color: var(--accent-light); }
+    .license-chip { border: 1px solid #d7e9d653; border-radius: 4px; padding: 4px 7px; color: #d7e9d6; font-size: 10px; letter-spacing: .06em; }
+    .hero-copy { max-width: 540px; margin-bottom: 25px; color: #d7ddd6; font-size: 15px; line-height: 1.7; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 11px; }
+    .button { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; gap: 9px; border: 1px solid transparent; border-radius: 5px; padding: 0 17px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background .16s ease, border-color .16s ease, transform .16s ease; }
+    .button:hover { transform: translateY(-1px); }
+    .button-primary { color: #181714; background: var(--accent-light); }
+    .button-primary:hover { background: #ffc3a5; }
+    .button-secondary { border-color: #ffffff5c; color: var(--ink); background: #17211dba; }
+    .button-secondary:hover { border-color: #ffffffa3; background: #26332dbf; }
+    .button svg { width: 16px; height: 16px; }
 
-    .brand {
-      height: 118px;
-      display: flex;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 86px;
-      font-weight: 500;
-      line-height: 1;
-      letter-spacing: 0;
-      user-select: none;
-    }
-    .blue { color: #4285f4; }
-    .red { color: #ea4335; }
-    .yellow { color: #fbbc05; }
-    .green { color: #34a853; }
+    .content { width: min(100%, 1280px); margin: 0 auto; padding: 0 clamp(22px, 7vw, 104px) 70px; }
+    .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 18px; }
+    .section-heading h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 27px; font-weight: 400; }
+    .section-note { margin: 0; color: var(--muted); font-size: 12px; }
+    .catalog-section { padding-top: 10px; }
+    .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
+    .movie-card { min-width: 0; overflow: hidden; border: 1px solid #ffffff12; border-radius: 6px; background: var(--surface); transition: border-color .18s ease, transform .18s ease; }
+    .movie-card:hover { transform: translateY(-3px); border-color: #ffffff40; }
+    .poster { position: relative; aspect-ratio: 16 / 10; overflow: hidden; background: #2d4137; }
+    .poster img { width: 100%; height: 100%; display: block; object-fit: cover; transition: transform .35s ease; }
+    .movie-card:hover .poster img { transform: scale(1.035); }
+    .poster::after { position: absolute; inset: 45% 0 0; background: linear-gradient(0deg, #151c19b8, transparent); content: ""; pointer-events: none; }
+    .poster-tag { position: absolute; z-index: 1; top: 10px; left: 10px; border: 1px solid #e8f0e177; border-radius: 3px; padding: 5px 7px; color: #eff7ed; background: #132018c9; font-size: 9px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+    .poster-duration { position: absolute; z-index: 1; right: 10px; bottom: 10px; color: #fff; font-size: 11px; font-variant-numeric: tabular-nums; }
+    .card-body { padding: 14px 14px 13px; }
+    .card-topline { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+    .card-title { margin: 0 0 5px; font-size: 15px; font-weight: 700; }
+    .card-subtitle { margin: 0; color: var(--muted); font-size: 11px; }
+    .rating { flex: 0 0 auto; color: #f3c87b; font-size: 11px; }
+    .card-actions { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 16px; }
+    .text-button { border: 0; padding: 4px 0; color: var(--accent-light); background: none; font-size: 12px; font-weight: 700; cursor: pointer; }
+    .text-button:hover { color: #ffd0b8; }
+    .save-button { width: 32px; height: 32px; display: inline-grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: #d7ddd6; background: transparent; cursor: pointer; }
+    .save-button:hover, .save-button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent-light); background: #ed765f19; }
+    .save-button svg { width: 15px; height: 15px; }
+    .empty-state { grid-column: 1 / -1; border-top: 1px solid var(--line); padding: 28px 0; color: var(--muted); font-size: 14px; }
+    .empty-state strong { display: block; margin-bottom: 6px; color: var(--ink); font-size: 16px; }
 
-    .search-form { width: min(100%, 688px); }
+    .about-strip { display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 24px; margin: 48px 0 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 20px 0; }
+    .about-strip strong { display: block; margin-bottom: 5px; font-size: 13px; }
+    .about-strip p { max-width: 680px; margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+    .about-link { color: var(--green); font-size: 12px; white-space: nowrap; }
+    footer { display: flex; justify-content: space-between; gap: 20px; border-top: 1px solid #ffffff12; padding: 20px clamp(22px, 7vw, 104px); color: var(--muted); font-size: 11px; }
+    footer a { color: var(--green); }
 
-    .searchbox {
-      height: 52px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border: 1px solid #dfe1e5;
-      border-radius: 28px;
-      padding: 0 8px 0 14px;
-      box-shadow: 0 1px 6px #20212424;
-      transition: box-shadow .15s ease;
-    }
-    .searchbox:hover, .searchbox:focus-within {
-      border-color: transparent;
-      box-shadow: 0 1px 6px #20212440;
-    }
-
-    .icon-button {
-      width: 32px;
-      height: 36px;
-      flex: 0 0 32px;
-      display: inline-grid;
-      place-items: center;
-      border: 0;
-      padding: 0;
-      color: #202124;
-      background: transparent;
-      cursor: pointer;
-    }
-    .icon-button svg { width: 20px; height: 20px; }
-
-    .query {
-      height: 100%;
-      min-width: 0;
-      flex: 1;
-      border: 0;
-      outline: 0;
-      padding: 0;
-      color: #202124;
-      background: transparent;
-      font: 16px Arial, Helvetica, sans-serif;
-    }
-
-    .search-tools { display: flex; align-items: center; gap: 8px; }
-    .ai-mode {
-      height: 36px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border-radius: 18px;
-      padding: 0 11px;
-      color: #202124;
-      background: #f8f9fa;
-      font-size: 14px;
-      white-space: nowrap;
-    }
-    .ai-mode:hover { background: #f1f3f4; text-decoration: none; }
-    .ai-mode svg { width: 18px; height: 18px; }
-
-    .actions { display: flex; justify-content: center; gap: 12px; margin-top: 29px; }
-    .action-button {
-      min-height: 36px;
-      border: 1px solid #f8f9fa;
-      border-radius: 4px;
-      padding: 0 16px;
-      color: #3c4043;
-      background: #f8f9fa;
-      font: 14px Arial, Helvetica, sans-serif;
-      cursor: pointer;
-    }
-    .action-button:hover { border-color: #dadce0; box-shadow: 0 1px 1px #0001; }
-
-    .languages {
-      margin-top: 47px;
-      color: #4d5156;
-      font-size: 13px;
-      text-align: center;
-    }
-    .languages a { margin-left: 4px; color: #1a0dab; white-space: nowrap; }
-
-    footer { flex: 0 0 auto; color: #1f1f1f; background: #f2f2f2; font-size: 14px; }
-    .country { min-height: 48px; display: flex; align-items: center; padding: 0 30px; border-bottom: 1px solid #dadce0; }
-    .footer-row {
-      min-height: 46px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 24px;
-      padding: 0 30px;
-    }
-    .footer-links { display: flex; align-items: center; justify-content: space-between; gap: 28px; }
-    .footer-row .center-link { margin: 0 auto; text-align: center; }
-    .footer-row .right-links { justify-content: flex-end; }
+    .player-dialog { width: min(94vw, 1000px); max-width: none; max-height: 92dvh; overflow: auto; border: 1px solid #56645b; border-radius: 8px; padding: 0; color: var(--ink); background: #101613; box-shadow: 0 24px 90px #000a; }
+    .player-dialog::backdrop { background: #070a08db; backdrop-filter: blur(5px); }
+    .dialog-top { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 15px 18px; }
+    .dialog-title { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 19px; font-weight: 400; }
+    .close-button { width: 36px; height: 36px; display: grid; place-items: center; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); background: transparent; cursor: pointer; }
+    .close-button:hover { background: var(--surface-raised); }
+    .close-button svg { width: 18px; height: 18px; }
+    .video-frame { width: 100%; aspect-ratio: 16 / 9; display: block; border: 0; background: #050706; }
+    .player-credit { margin: 0; padding: 14px 18px 18px; color: var(--muted); font-size: 11px; line-height: 1.6; }
+    .player-credit a { color: var(--green); }
 
     @media (max-width: 760px) {
-      .topbar { gap: 14px; }
-      main { padding-right: 18px; padding-left: 18px; }
-      .brand { height: 108px; font-size: 76px; }
-      .searchbox { gap: 6px; padding-left: 12px; }
-      .search-tools { gap: 2px; }
-      .ai-mode { padding: 0 8px; }
-      .footer-row { flex-wrap: wrap; justify-content: center; gap: 0; padding: 10px 18px; }
-      .footer-links { flex-wrap: wrap; justify-content: center; gap: 16px 24px; }
-      .footer-row .center-link { order: -1; flex-basis: 100%; margin: 0 0 14px; }
-      .footer-row .right-links { justify-content: center; }
+      .site-header { min-height: 64px; gap: 22px; padding-right: 18px; padding-left: 18px; }
+      .main-nav { gap: 16px; }
+      .search-wrap { width: min(35vw, 240px); min-width: 150px; }
+      .hero { min-height: 570px; }
+      .hero-content { padding: 72px 24px 55px; }
+      .hero::before { background: linear-gradient(90deg, #111816e8 0%, #111816a6 70%, #11181655 100%), linear-gradient(0deg, #111816 0%, #11181600 70%); }
+      .content { padding: 0 24px 54px; }
+      .catalog { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 14px; }
+      footer { padding-right: 24px; padding-left: 24px; }
     }
-
-    @media (max-width: 430px) {
-      .topbar { height: 56px; flex-basis: 56px; gap: 12px; }
-      .brand { height: 98px; font-size: 50px; letter-spacing: 0; }
-      .searchbox { gap: 2px; padding-right: 6px; }
-      .icon-button { width: 28px; flex-basis: 28px; }
-      .search-tools { gap: 0; }
-      .ai-mode { height: 34px; gap: 3px; padding: 0 7px; font-size: 12px; }
-      .ai-mode svg { width: 16px; height: 16px; }
-      .actions { gap: 8px; }
-      .action-button { padding: 0 12px; font-size: 13px; }
-      .languages { max-width: 330px; margin-top: 38px; line-height: 2; }
-      .country { min-height: 46px; padding: 0 22px; }
-      .footer-row { padding: 12px 18px; }
-      .footer-links { gap: 14px 20px; font-size: 13px; }
+    @media (max-width: 520px) {
+      .site-header { flex-wrap: wrap; gap: 0 18px; padding-top: 11px; padding-bottom: 11px; }
+      .wordmark { font-size: 14px; }
+      .mark { width: 25px; height: 25px; }
+      .main-nav { margin-left: auto; }
+      .nav-button { font-size: 12px; }
+      .header-tools { flex: 1 0 100%; gap: 10px; margin: 10px 0 0; }
+      .search-wrap { width: auto; min-width: 0; flex: 1; }
+      .search-input { height: 36px; }
+      .hero { min-height: 545px; }
+      .hero-art { object-position: 58% center; }
+      .hero-content { padding: 60px 20px 42px; }
+      .hero h1 { font-size: 49px; }
+      .hero-copy { font-size: 13px; }
+      .content { padding: 0 20px 42px; }
+      .section-heading { display: block; }
+      .section-note { margin-top: 6px; line-height: 1.5; }
+      .catalog { grid-template-columns: 1fr; }
+      .movie-card { display: grid; grid-template-columns: minmax(120px, 40%) 1fr; align-items: stretch; }
+      .poster { height: 100%; min-height: 150px; aspect-ratio: auto; }
+      .card-body { display: flex; flex-direction: column; justify-content: center; padding: 12px; }
+      .card-actions { margin-top: 13px; }
+      .about-strip { grid-template-columns: 1fr; gap: 12px; }
+      .about-link { white-space: normal; }
+      footer { flex-direction: column; gap: 8px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
     }
   </style>
 </head>
 <body>
-  <header class="topbar">
-    <a href="https://mail.google.com/">Gmail</a>
-    <a href="https://images.google.com/">Images</a>
-    <a class="apps" href="https://www.google.com/intl/en/about/products" aria-label="AcumenFx apps" title="AcumenFx apps">
-      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
-    </a>
-    <a class="signin" href="https://accounts.google.com/">Sign in</a>
+  <header class="site-header">
+    <a class="wordmark" href="#home" aria-label="AcumenFx home"><span class="mark" aria-hidden="true">A</span>ACUMENFX</a>
+    <nav class="main-nav" aria-label="Main navigation">
+      <button class="nav-button" type="button" data-view="browse" aria-current="page">Browse</button>
+      <button class="nav-button" type="button" data-view="list">My List</button>
+    </nav>
+    <div class="header-tools">
+      <label class="search-wrap">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="1.8"/><path d="m16 16 4.5 4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        <input id="catalog-search" class="search-input" type="search" placeholder="Search the library" aria-label="Search the licensed library">
+      </label>
+      <span id="list-count" class="list-count" aria-label="Saved titles">0</span>
+    </div>
   </header>
 
-  <main>
-    <div class="brand" role="img" aria-label="AcumenFx">
-      <span class="red">A</span><span class="yellow">c</span><span class="blue">u</span><span class="green">m</span><span class="red">e</span><span class="blue">n</span><span class="green">F</span><span class="yellow">x</span>
-    </div>
-
-    <form class="search-form" action="https://www.google.com/search" method="get" target="_self" role="search">
-      <div class="searchbox">
-        <button class="icon-button" type="button" aria-label="Add files and tools" title="Add files and tools">
-          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></svg>
-        </button>
-        <input class="query" type="search" name="q" aria-label="Search" autocomplete="off" required>
-        <div class="search-tools">
-          <button class="icon-button" type="button" aria-label="Search by voice" title="Search by voice">
-            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V5a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.93V21h2v-3.07A7 7 0 0 0 19 11h-2Z"/></svg>
+  <main id="home">
+    <section class="hero" aria-labelledby="hero-title">
+      <img class="hero-art" src="https://i.ytimg.com/vi/YE7VzlLtp-4/hqdefault.jpg" alt="Big Buck Bunny, a Blender Foundation open movie" fetchpriority="high">
+      <div class="hero-content">
+        <p class="eyebrow">AcumenFx Open Film Library</p>
+        <h1 id="hero-title">Big Buck<br> Bunny</h1>
+        <div class="hero-meta">
+          <span>2008</span><span class="meta-dot" aria-hidden="true">/</span><span>9 min</span><span class="meta-dot" aria-hidden="true">/</span><span>Animation</span>
+          <span class="license-chip">CC BY 3.0</span>
+        </div>
+        <p class="hero-copy">A gentle giant sets out for a peaceful afternoon, until three mischievous rodents turn his day upside down. A complete open movie from the Blender Foundation.</p>
+        <div class="hero-actions">
+          <button class="button button-primary" type="button" data-play="bbb">
+            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5.8c0-.8.9-1.3 1.6-.9l9.2 5.2a1 1 0 0 1 0 1.8l-9.2 5.2c-.7.4-1.6-.1-1.6-.9V5.8Z"/></svg>
+            Watch the film
           </button>
-          <button class="icon-button" type="button" aria-label="Search by image" title="Search by image">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 4H5a2 2 0 0 0-2 2v2m14-4h2a2 2 0 0 1 2 2v2M3 16v2a2 2 0 0 0 2 2h2m14-4v2a2 2 0 0 1-2 2h-2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="11" r="4" stroke="currentColor" stroke-width="2"/><path d="m15 14 3 3" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          <button class="button button-secondary" type="button" data-save="bbb" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span>Add to My List</span>
           </button>
-          <a class="ai-mode" href="https://www.google.com/">
-            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 3 13.8 9.2 20 11l-6.2 1.8L12 19l-1.8-6.2L4 11l6.2-1.8L12 3Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M19 16v5m-2.5-2.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-            AI Mode
-          </a>
         </div>
       </div>
-      <div class="actions">
-        <button class="action-button" type="submit">Find Something Cool</button>
-        <button class="action-button" type="submit" name="btnI" value="1">I'm Feeling Lucky</button>
-      </div>
-    </form>
+    </section>
 
-    <div class="languages">
-      AcumenFx offered in:
-      <a href="#">Hausa</a><a href="#">Igbo</a><a href="#">E&#768;de&#768; Yor&#249;b&#225;</a><a href="#">Nigerian Pidgin</a>
-    </div>
+    <section class="content catalog-section" aria-labelledby="catalog-heading">
+      <div class="section-heading">
+        <div>
+          <p class="eyebrow">Watch here</p>
+          <h2 id="catalog-heading">Licensed films</h2>
+        </div>
+        <p class="section-note" id="catalog-note">One film is ready to play. More titles appear here as AcumenFx gets streaming permission.</p>
+      </div>
+      <div id="catalog" class="catalog" aria-live="polite"></div>
+      <aside class="about-strip" aria-label="Film attribution">
+        <div>
+          <strong>Open film, properly credited</strong>
+          <p>Big Buck Bunny is by Blender Foundation and is licensed under Creative Commons Attribution 3.0. The complete film is shown with its credits. <a href="https://peach.blender.org/about/">Read the license and attribution details.</a></p>
+        </div>
+        <a class="about-link" href="https://peach.blender.org/">About the film at peach.blender.org</a>
+      </aside>
+    </section>
   </main>
 
   <footer>
-    <div class="country">AcumenFx</div>
-    <div class="footer-row">
-      <nav class="footer-links" aria-label="About AcumenFx">
-        <a href="https://about.google/">About</a>
-        <a href="https://www.google.com/intl/en_ng/ads/">Advertising</a>
-        <a href="https://www.google.com/services/">Business</a>
-        <a href="https://www.google.com/search/howsearchworks/">How Search works</a>
-      </nav>
-      <a class="center-link" href="https://ai.google/">Build, create, and do more with AI tools from AcumenFx</a>
-      <nav class="footer-links right-links" aria-label="Legal and settings">
-        <a href="https://policies.google.com/privacy">Privacy</a>
-        <a href="https://policies.google.com/terms">Terms</a>
-        <a href="https://www.google.com/preferences">Settings</a>
-      </nav>
-    </div>
+    <span>AcumenFx is an independent film library.</span>
+    <span>Only authorized titles are playable here.</span>
   </footer>
+
+  <dialog id="player-dialog" class="player-dialog" aria-labelledby="dialog-title">
+    <div class="dialog-top">
+      <h2 id="dialog-title" class="dialog-title">Big Buck Bunny</h2>
+      <button id="close-player" class="close-button" type="button" aria-label="Close player">
+        <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+    <iframe id="video-frame" class="video-frame" title="Big Buck Bunny full film" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+    <p class="player-credit">Big Buck Bunny by Blender Foundation. Licensed under <a href="https://creativecommons.org/licenses/by/3.0/">Creative Commons Attribution 3.0</a>. The embedded video is served by the official Blender Foundation YouTube upload.</p>
+  </dialog>
+
+  <script>
+    const film = {
+      id: "bbb",
+      title: "Big Buck Bunny",
+      creator: "Blender Foundation",
+      year: "2008",
+      duration: "9 min",
+      category: "Animation",
+      rating: "Open film",
+      poster: "https://i.ytimg.com/vi/YE7VzlLtp-4/hqdefault.jpg",
+      videoId: "YE7VzlLtp-4"
+    };
+
+    const catalog = document.querySelector("#catalog");
+    const searchInput = document.querySelector("#catalog-search");
+    const listCount = document.querySelector("#list-count");
+    const playerDialog = document.querySelector("#player-dialog");
+    const videoFrame = document.querySelector("#video-frame");
+    const viewButtons = [...document.querySelectorAll("[data-view]")];
+    let activeView = "browse";
+    let savedTitles = readSavedTitles();
+
+    function readSavedTitles() {
+      try {
+        const storedTitles = JSON.parse(localStorage.getItem("acumenfx-watchlist") || "[]");
+        return new Set(Array.isArray(storedTitles) ? storedTitles : []);
+      } catch {
+        return new Set();
+      }
+    }
+
+    function saveTitles() {
+      try {
+        localStorage.setItem("acumenfx-watchlist", JSON.stringify([...savedTitles]));
+      } catch {
+        return;
+      }
+    }
+
+    function renderCatalog() {
+      const query = searchInput.value.trim().toLowerCase();
+      const matchesSearch = [film.title, film.creator, film.category].join(" ").toLowerCase().includes(query);
+      const isSaved = savedTitles.has(film.id);
+      listCount.textContent = String(savedTitles.size);
+      listCount.setAttribute("aria-label", `${savedTitles.size} saved ${savedTitles.size === 1 ? "title" : "titles"}`);
+
+      if (activeView === "list" && !isSaved) {
+        catalog.innerHTML = '<p class="empty-state"><strong>Your list is empty.</strong>Save a licensed film and it will show up here.</p>';
+        return;
+      }
+
+      if (!matchesSearch) {
+        catalog.innerHTML = '<p class="empty-state"><strong>No matching title.</strong>Try another title, creator, or category.</p>';
+        return;
+      }
+
+      catalog.innerHTML = `
+        <article class="movie-card">
+          <div class="poster">
+            <img src="${film.poster}" alt="Big Buck Bunny film artwork" loading="lazy">
+            <span class="poster-tag">CC BY 3.0</span>
+            <span class="poster-duration">${film.duration}</span>
+          </div>
+          <div class="card-body">
+            <div class="card-topline">
+              <div><h3 class="card-title">${film.title}</h3><p class="card-subtitle">${film.year} <span aria-hidden="true">·</span> ${film.category}</p></div>
+              <span class="rating">${film.rating}</span>
+            </div>
+            <div class="card-actions">
+              <button class="text-button" type="button" data-play="${film.id}">Play on AcumenFx</button>
+              <button class="save-button" type="button" data-save="${film.id}" aria-pressed="${isSaved}" aria-label="${isSaved ? "Remove" : "Add"} ${film.title} ${isSaved ? "from" : "to"} My List" title="${isSaved ? "Remove from" : "Add to"} My List">
+                <svg viewBox="0 0 24 24" fill="${isSaved ? "currentColor" : "none"}" aria-hidden="true"><path d="M6 4.8c0-.4.4-.8.8-.8h10.4c.4 0 .8.4.8.8v15l-6-3.8-6 3.8v-15Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+              </button>
+            </div>
+          </div>
+        </article>`;
+    }
+
+    function openPlayer() {
+      videoFrame.src = `https://www.youtube-nocookie.com/embed/${film.videoId}?autoplay=1&rel=0`;
+      playerDialog.showModal();
+      document.body.classList.add("dialog-open");
+      document.querySelector("#close-player").focus();
+    }
+
+    function closePlayer() {
+      if (playerDialog.open) playerDialog.close();
+      videoFrame.removeAttribute("src");
+      document.body.classList.remove("dialog-open");
+    }
+
+    document.addEventListener("click", event => {
+      const playButton = event.target.closest("[data-play]");
+      if (playButton) openPlayer();
+
+      const saveButton = event.target.closest("[data-save]");
+      if (saveButton) {
+        if (savedTitles.has(film.id)) savedTitles.delete(film.id);
+        else savedTitles.add(film.id);
+        saveTitles();
+        renderCatalog();
+        document.querySelector("[data-save='bbb']")?.setAttribute("aria-pressed", String(savedTitles.has(film.id)));
+        const heroSaveText = document.querySelector(".hero-actions [data-save] span");
+        if (heroSaveText) heroSaveText.textContent = savedTitles.has(film.id) ? "Added to My List" : "Add to My List";
+      }
+
+      const viewButton = event.target.closest("[data-view]");
+      if (viewButton) {
+        activeView = viewButton.dataset.view;
+        viewButtons.forEach(button => {
+          if (button === viewButton) button.setAttribute("aria-current", "page");
+          else button.removeAttribute("aria-current");
+        });
+        renderCatalog();
+      }
+    });
+
+    searchInput.addEventListener("input", renderCatalog);
+    document.querySelector("#close-player").addEventListener("click", closePlayer);
+    playerDialog.addEventListener("close", () => {
+      videoFrame.removeAttribute("src");
+      document.body.classList.remove("dialog-open");
+    });
+    playerDialog.addEventListener("click", event => {
+      if (event.target === playerDialog) closePlayer();
+    });
+    document.querySelector(".hero-actions [data-save]").addEventListener("click", event => {
+      event.currentTarget.setAttribute("aria-pressed", String(savedTitles.has(film.id)));
+    });
+
+    renderCatalog();
+    document.querySelector(".hero-actions [data-save] span").textContent = savedTitles.has(film.id) ? "Added to My List" : "Add to My List";
+    document.querySelector(".hero-actions [data-save]").setAttribute("aria-pressed", String(savedTitles.has(film.id)));
+  </script>
 </body>
 </html>
