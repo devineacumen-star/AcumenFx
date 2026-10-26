@@ -92,7 +92,8 @@
     .section-heading { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin: 0 0 18px; }
     .section-heading h2 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: 27px; font-weight: 400; }
     .section-note { margin: 0; color: var(--muted); font-size: 12px; }
-    .catalog-section { padding-top: 10px; }
+    .catalog-section { padding-top: 10px; scroll-margin-top: 82px; }
+    .hero[hidden] { display: none; }
     .catalog { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 18px; }
     .movie-card { min-width: 0; overflow: hidden; border: 1px solid #ffffff12; border-radius: 6px; background: var(--surface); transition: border-color .18s ease, transform .18s ease; }
     .movie-card:hover { transform: translateY(-3px); border-color: #ffffff40; }
@@ -265,6 +266,9 @@
     };
 
     const catalog = document.querySelector("#catalog");
+    const hero = document.querySelector(".hero");
+    const catalogHeading = document.querySelector("#catalog-heading");
+    const catalogNote = document.querySelector("#catalog-note");
     const searchInput = document.querySelector("#catalog-search");
     const listCount = document.querySelector("#list-count");
     const playerDialog = document.querySelector("#player-dialog");
@@ -294,11 +298,16 @@
       const query = searchInput.value.trim().toLowerCase();
       const matchesSearch = [film.title, film.creator, film.category].join(" ").toLowerCase().includes(query);
       const isSaved = savedTitles.has(film.id);
+      hero.hidden = activeView === "list";
+      catalogHeading.textContent = activeView === "list" ? "My List" : "Licensed films";
+      catalogNote.textContent = activeView === "list"
+        ? "Your saved titles are stored in this browser."
+        : "One film is ready to play. More titles appear here as AcumenFx gets streaming permission.";
       listCount.textContent = String(savedTitles.size);
       listCount.setAttribute("aria-label", `${savedTitles.size} saved ${savedTitles.size === 1 ? "title" : "titles"}`);
 
       if (activeView === "list" && !isSaved) {
-        catalog.innerHTML = '<p class="empty-state"><strong>Your list is empty.</strong>Save a licensed film and it will show up here.</p>';
+        catalog.innerHTML = '<p class="empty-state"><strong>Your list is empty.</strong>Choose Browse to find a film, then add it here.</p>';
         return;
       }
 
@@ -360,11 +369,13 @@
       const viewButton = event.target.closest("[data-view]");
       if (viewButton) {
         activeView = viewButton.dataset.view;
+        searchInput.value = "";
         viewButtons.forEach(button => {
           if (button === viewButton) button.setAttribute("aria-current", "page");
           else button.removeAttribute("aria-current");
         });
         renderCatalog();
+        window.scrollTo({ top: 0, behavior: "smooth" });
       }
     });
 
